@@ -1,83 +1,44 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --- VERIFICACIÓN DE VERSIÓN ---
-st.set_page_config(page_title="HealthExpert AI", page_icon="🩺")
-st.title("✅ VERSIÓN FINAL - CONECTADA")
+st.set_page_config(page_title="Diagnóstico Gemini", page_icon="🔍")
+st.title("🔍 Escáner de Modelos Disponibles")
 
-# --- API KEY ---
+# 1. Intentar obtener la API KEY
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
+    # Mostramos los últimos 4 caracteres para verificar que usas la llave correcta
+    st.info(f"🔑 Probando conexión con la llave que termina en: ...{api_key[-4:]}")
     genai.configure(api_key=api_key)
-except Exception:
-    st.error("⚠️ Faltan los Secretos. Configura la GEMINI_API_KEY en Streamlit.")
+except Exception as e:
+    st.error(f"❌ Error leyendo Secrets: {e}")
     st.stop()
 
-# --- SYSTEM PROMPT ---
-SYSTEM_PROMPT = """
-Eres un Asistente Experto en Contexto de Salud.
-REGLA: Si el usuario eligió un nivel, responde ESTRICTAMENTE en ese nivel.
-- Nivel Básico: Explicación sencilla, como a un niño de 12 años.
-- Nivel Medio: Explicación formal, citando fuentes generales.
-- Nivel Experto: Terminología médica, patologías, protocolos y NOMs.
-"""
+# 2. Llamar a ListModels
+st.write("⏳ Contactando a Google para listar modelos...")
 
-# --- INICIALIZAR ESTADO ---
-if "nivel" not in st.session_state:
-    st.session_state.nivel = None
-if "mensajes" not in st.session_state:
-    st.session_state.mensajes = []
+try:
+    modelos_encontrados = []
+    for m in genai.list_models():
+        # Solo nos interesan los modelos que sirven para generar texto (generateContent)
+        if 'generateContent' in m.supported_generation_methods:
+            modelos_encontrados.append(m.name)
 
-# --- PANTALLA 1: SELECCIÓN DE NIVEL ---
-if st.session_state.nivel is None:
-    st.info("👋 Hola. Para empezar, selecciona tu nivel de profundidad:")
-    c1, c2, c3 = st.columns(3)
-    if c1.button("BÁSICO (Sencillo)"):
-        st.session_state.nivel = "Básica"
-        st.rerun()
-    if c2.button("MEDIO (Detallado)"):
-        st.session_state.nivel = "Media"
-        st.rerun()
-    if c3.button("EXPERTO (Técnico)"):
-        st.session_state.nivel = "Experto"
-        st.rerun()
+    # 3. Mostrar resultados
+    if len(modelos_encontrados) > 0:
+        st.success(f"✅ ¡Conexión Exitosa! Se encontraron {len(modelos_encontrados)} modelos.")
+        st.markdown("### Copia uno de estos nombres exactos:")
+        for nombre in modelos_encontrados:
+            st.code(nombre) # Esto mostrará algo como models/gemini-pro
+    else:
+        st.warning("⚠️ La conexión funciona, pero la lista de modelos está vacía. Tu llave no tiene permisos para ver modelos.")
 
-# --- PANTALLA 2: CHAT ---
-else:
-    st.success(f"Modo Activo: {st.session_state.nivel}")
-    if st.button("Cambiar Nivel"):
-        st.session_state.nivel = None
-        st.session_state.mensajes = []
-        st.rerun()
-
-    # Historial
-    for m in st.session_state.mensajes:
-        with st.chat_message(m["role"]):
-            st.markdown(m["content"])
-
-    # Input
-    prompt = st.chat_input("Escribe tu consulta médica...")
-    
-    if prompt:
-        st.chat_message("user").markdown(prompt)
-        st.session_state.mensajes.append({"role": "user", "content": prompt})
-
-        try:
-            # Lógica del Prompt Oculto
-            full_prompt = f"""
-            {SYSTEM_PROMPT}
-            CONTEXTO: El usuario eligió NIVEL {st.session_state.nivel}.
-            Pregunta del usuario: {prompt}
-            """
-            
-            # Usamos el modelo Flash
-            model = genai.GenerativeModel('gemini-pro')
-            response = model.generate_content(full_prompt)
-            
-            text = response.text
-            with st.chat_message("assistant"):
-                st.markdown(text)
-            st.session_state.mensajes.append({"role": "assistant", "content": text})
-            
-        except Exception as e:
-            st.error(f"Error de conexión: {e}")
+except Exception as e:
+    st.error("❌ ERROR CRÍTICO AL LISTAR MODELOS:")
+    st.error(e)
+    st.markdown("""
+    **Posibles causas:**
+    1. La API Key es inválida.
+    2. El proyecto de Google Cloud no tiene habilitada la "Generative Language API".
+    3. Tu IP o región está bloqueada.
+    """)
