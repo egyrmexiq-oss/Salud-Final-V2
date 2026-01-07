@@ -3,7 +3,30 @@ import google.generativeai as genai
 from fpdf import FPDF
 
 # --- CONFIGURACIÓN DE PÁGINA ---
-st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wide")
+# --- APP PRINCIPAL CON ESTILO ---
+
+# 1. Inyectamos CSS para cargar la fuente "Orbitron" de Google y definir el estilo
+st.markdown("""
+    <style>
+        /* Importamos la fuente futurista de Google */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+        /* Creamos una clase personalizada para el título */
+        .titulo-quantum {
+            font-family: 'Orbitron', sans-serif !important;
+            font-size: 3em !important;  /* Tamaño grande */
+            color: #00C2FF !important; /* Color azul cian tipo láser */
+            text-align: center !important;
+            text-transform: uppercase;
+            /* Efecto de brillo de neón opcional */
+            text-shadow: 0 0 10px #00C2FF, 0 0 20px #004e92;
+            margin-bottom: 20px !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# 2. Usamos HTML en lugar de st.title para aplicar la clase que creamos arriba
+st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
 
 # --- 🔐 CONTRASEÑA MAESTRA ---
 # Cambia esta palabra por la contraseña que tú quieras vender
