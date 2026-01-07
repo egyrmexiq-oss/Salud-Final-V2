@@ -103,7 +103,8 @@ st.title("Quantum AI Health")
 
 if not acepta_terminos:
     st.info("👋 Bienvenido a QUANTUM. Para iniciar, por favor valida el aviso legal en el menú de la izquierda.")
-    st.image("https://www.freepik.com/free-photo/classy-rate-heart-beat-fashion-heart_1074186.htm")
+    # Asegúrate de que el nombre aquí sea IDÉNTICO al del archivo que subiste a GitHub
+    st.image("image_143480.png", use_container_width=True)
 
 else:
     # Mostrar Nivel Activo
