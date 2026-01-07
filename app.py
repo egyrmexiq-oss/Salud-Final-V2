@@ -26,7 +26,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. Usamos HTML en lugar de st.title para aplicar la clase que creamos arriba
-st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
+st.markdown('<h2 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
 
 # --- 🔐 CONTRASEÑA MAESTRA ---
 # Cambia esta palabra por la contraseña que tú quieras vender
