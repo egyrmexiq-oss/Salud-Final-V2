@@ -1,7 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
-import io
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wide")
@@ -29,18 +28,22 @@ if "mensajes" not in st.session_state:
 def crear_pdf(mensajes):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Arial", size=10)
     
-    pdf.cell(200, 10, txt="Resumen de Consulta - QUANTUM AI", ln=1, align='C')
-    pdf.ln(10)
+    pdf.cell(0, 10, txt="Resumen de Consulta - QUANTUM AI", ln=1, align='C')
+    pdf.ln(5)
     
     for m in mensajes:
         rol = "USUARIO" if m["role"] == "user" else "QUANTUM"
-        texto = f"{rol}: {m['content']}\n"
-        # Limpieza básica de caracteres para PDF simple
-        texto = texto.encode('latin-1', 'replace').decode('latin-1') 
-        pdf.multi_cell(0, 10, txt=texto)
-        pdf.ln(2)
+        # Limpieza básica para evitar errores de caracteres en PDF
+        texto_limpio = m['content'].encode('latin-1', 'replace').decode('latin-1')
+        
+        pdf.set_font("Arial", 'B', 10)
+        pdf.cell(0, 8, txt=f"{rol}:", ln=1)
+        
+        pdf.set_font("Arial", '', 10)
+        pdf.multi_cell(0, 6, txt=texto_limpio)
+        pdf.ln(3)
         
     return pdf.output(dest='S').encode('latin-1')
 
@@ -63,29 +66,44 @@ with st.sidebar:
             ["Básica (Sencilla)", "Media (Detallada)", "Experta (Técnica)"]
         )
         
-        # 3. BOTONES DE ACCIÓN
+        # 3. HISTORIAL VISUAL (¡NUEVO!)
         st.markdown("---")
-        col_side1, col_side2 = st.columns(2)
-        if col_side1.button("🗑️ Limpiar"):
-            st.session_state.mensajes = []
-            st.rerun()
-            
-        # Botón de descarga (Solo si hay mensajes)
-        if st.session_state.mensajes:
-            pdf_bytes = crear_pdf(st.session_state.mensajes)
-            st.download_button(
-                label="📥 Descargar PDF",
-                data=pdf_bytes,
-                file_name="consulta_quantum.pdf",
-                mime="application/pdf"
-            )
+        st.markdown("### 📜 Historial Reciente")
+        if not st.session_state.mensajes:
+            st.caption("No hay preguntas aún.")
+        else:
+            for i, m in enumerate(st.session_state.mensajes):
+                if m["role"] == "user":
+                    # Mostramos solo los primeros 30 caracteres de la pregunta
+                    st.text(f"• {m['content'][:30]}...")
+
+        # 4. BOTONES DE ACCIÓN (¡CORREGIDO!)
+        st.markdown("---")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("🗑️ Limpiar", use_container_width=True):
+                st.session_state.mensajes = []
+                st.rerun()
+        
+        with col2:
+            # El botón de descarga solo aparece si hay chat
+            if st.session_state.mensajes:
+                pdf_bytes = crear_pdf(st.session_state.mensajes)
+                st.download_button(
+                    label="📥 PDF",
+                    data=pdf_bytes,
+                    file_name="Quantum_Consulta.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
 
 # --- ÁREA PRINCIPAL ---
 st.title("Quantum AI Health")
 
 if not acepta_terminos:
-    st.warning("⚠️ Para iniciar el sistema, por favor acepta los términos en la barra lateral izquierda.")
-    st.image("https://img.freepik.com/free-vector/futuristic-medical-background_23-2148496587.jpg?w=826", caption="Quantum Interface", width=400)
+    st.info("👋 Bienvenido a QUANTUM. Para iniciar, por favor valida el aviso legal en el menú de la izquierda.")
+    st.image("https://img.freepik.com/free-vector/futuristic-medical-background_23-2148496587.jpg?w=826", width=500)
 
 else:
     # Mostrar Nivel Activo
@@ -120,8 +138,7 @@ else:
             
             # Guardar y mostrar IA
             st.session_state.mensajes.append({"role": "assistant", "content": texto_ia})
-            with st.chat_message("assistant"):
-                st.markdown(texto_ia)
+            st.rerun() # Recargamos para que se actualice el historial y el botón PDF al instante
                 
         except Exception as e:
             st.error(f"Error en Quantum: {e}")
