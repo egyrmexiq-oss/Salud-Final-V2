@@ -101,7 +101,27 @@ with st.sidebar:
             c2.download_button("PDF", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
 
 # --- APP PRINCIPAL ---
-st.title("Quantum AI Health")
+# --- APP PRINCIPAL CON ESTILO ---
+
+# 1. Inyectamos CSS para cargar la fuente "Orbitron" de Google y definir el estilo
+st.markdown("""
+    <style>
+        /* Importamos la fuente futurista de Google */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+        /* Creamos una clase personalizada para el título */
+        .titulo-quantum {
+            font-family: 'Orbitron', sans-serif !important;
+            font-size: 3em !important;  /* Tamaño grande */
+            color: #00C2FF !important; /* Color azul cian tipo láser */
+            text-align: center !important;
+            text-transform: uppercase;
+            /* Efecto de brillo de neón opcional */
+            text-shadow: 0 0 10px #00C2FF, 0 0 20px #004e92;
+            margin-bottom: 20px !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 if not acepta_terminos:
     st.info(f"Hola {st.session_state.usuario_activo}. Valida el aviso legal para comenzar.")
