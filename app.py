@@ -71,7 +71,7 @@ else:
             """
             
             # Usamos el modelo Flash
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-pro')
             response = model.generate_content(full_prompt)
             
             text = response.text
