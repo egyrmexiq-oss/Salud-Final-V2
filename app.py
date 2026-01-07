@@ -107,7 +107,7 @@ if not acepta_terminos:
         st.image("portada.png", use_container_width=True)
     except:
         # Si falla (porque no se subió bien), usa una de internet de respaldo
-        st.warning("⚠️ No se encontró la imagen local. Usando respaldo.")
+        #st.warning("⚠️ No se encontró la imagen local. Usando respaldo.")
         st.image("https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg", use_container_width=True)
 
 else:
