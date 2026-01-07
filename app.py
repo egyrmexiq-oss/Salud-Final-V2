@@ -124,4 +124,3 @@ else:
             st.session_state.mensajes.append({"role": "assistant", "content": texto_ia})
             st.rerun()
         except Exception as e: st.error(f"Error: {e}")
-            st.error(f"Error: {e}")
