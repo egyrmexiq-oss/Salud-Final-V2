@@ -35,7 +35,7 @@ def crear_pdf(mensajes):
     
     for m in mensajes:
         rol = "USUARIO" if m["role"] == "user" else "QUANTUM"
-        # Limpieza básica para evitar errores de caracteres en PDF
+        # Limpieza básica
         texto_limpio = m['content'].encode('latin-1', 'replace').decode('latin-1')
         
         pdf.set_font("Arial", 'B', 10)
@@ -53,7 +53,7 @@ with st.sidebar:
     st.caption("Sistema Experto de Salud")
     st.markdown("---")
     
-    # 1. AVISO LEGAL (Candado)
+    # 1. AVISO LEGAL
     st.markdown("### 🔒 Acceso")
     acepta_terminos = st.checkbox("Declaro que entiendo que esta IA NO sustituye a un médico.")
     
@@ -66,18 +66,17 @@ with st.sidebar:
             ["Básica (Sencilla)", "Media (Detallada)", "Experta (Técnica)"]
         )
         
-        # 3. HISTORIAL VISUAL (¡NUEVO!)
+        # 3. HISTORIAL
         st.markdown("---")
         st.markdown("### 📜 Historial Reciente")
         if not st.session_state.mensajes:
             st.caption("No hay preguntas aún.")
         else:
-            for i, m in enumerate(st.session_state.mensajes):
+            for m in st.session_state.mensajes:
                 if m["role"] == "user":
-                    # Mostramos solo los primeros 30 caracteres de la pregunta
                     st.text(f"• {m['content'][:30]}...")
 
-        # 4. BOTONES DE ACCIÓN (¡CORREGIDO!)
+        # 4. BOTONES
         st.markdown("---")
         col1, col2 = st.columns(2)
         
@@ -87,7 +86,6 @@ with st.sidebar:
                 st.rerun()
         
         with col2:
-            # El botón de descarga solo aparece si hay chat
             if st.session_state.mensajes:
                 pdf_bytes = crear_pdf(st.session_state.mensajes)
                 st.download_button(
@@ -103,43 +101,41 @@ st.title("Quantum AI Health")
 
 if not acepta_terminos:
     st.info("👋 Bienvenido a QUANTUM. Para iniciar, por favor valida el aviso legal en el menú de la izquierda.")
-    # Asegúrate de que el nombre aquí sea IDÉNTICO al del archivo que subiste a GitHub
-    st.image("portada.png", use_container_width=True)
+    
+    # INTENTO DE CARGAR IMAGEN LOCAL
+    try:
+        st.image("portada.png", use_container_width=True)
+    except:
+        # Si falla (porque no se subió bien), usa una de internet de respaldo
+        st.warning("⚠️ No se encontró la imagen local. Usando respaldo.")
+        st.image("https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg", use_container_width=True)
 
 else:
-    # Mostrar Nivel Activo
     st.success(f"Sistema Activo | Nivel: **{nivel}**")
 
-    # Mostrar Chat
     for m in st.session_state.mensajes:
         with st.chat_message(m["role"]):
             st.markdown(m["content"])
 
-    # Input Usuario
     prompt = st.chat_input(f"Escribe tu consulta ({nivel})...")
     
     if prompt:
-        # Guardar y mostrar usuario
         st.session_state.mensajes.append({"role": "user", "content": prompt})
         st.chat_message("user").markdown(prompt)
 
         try:
-            # Lógica
             prompt_completo = f"""
             {SYSTEM_PROMPT}
             CONTEXTO: El usuario eligió {nivel}.
             Pregunta: "{prompt}"
             """
-            
-            # Llamada IA
             model = genai.GenerativeModel('gemini-2.5-flash')
             with st.spinner("Quantum procesando..."):
                 response = model.generate_content(prompt_completo)
                 texto_ia = response.text
             
-            # Guardar y mostrar IA
             st.session_state.mensajes.append({"role": "assistant", "content": texto_ia})
-            st.rerun() # Recargamos para que se actualice el historial y el botón PDF al instante
+            st.rerun()
                 
         except Exception as e:
             st.error(f"Error en Quantum: {e}")
