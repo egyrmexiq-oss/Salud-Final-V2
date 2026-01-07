@@ -1,44 +1,103 @@
 import streamlit as st
 import google.generativeai as genai
 
-st.set_page_config(page_title="Diagnóstico Gemini", page_icon="🔍")
-st.title("🔍 Escáner de Modelos Disponibles")
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(page_title="HealthExpert AI", page_icon="🩺", layout="centered")
 
-# 1. Intentar obtener la API KEY
+# --- CONEXIÓN SEGURA ---
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
-    # Mostramos los últimos 4 caracteres para verificar que usas la llave correcta
-    st.info(f"🔑 Probando conexión con la llave que termina en: ...{api_key[-4:]}")
     genai.configure(api_key=api_key)
-except Exception as e:
-    st.error(f"❌ Error leyendo Secrets: {e}")
+except Exception:
+    st.error("⚠️ Error: No se encontró la API KEY en los Secrets.")
     st.stop()
 
-# 2. Llamar a ListModels
-st.write("⏳ Contactando a Google para listar modelos...")
+# --- CEREBRO: SYSTEM PROMPT ---
+SYSTEM_PROMPT = """
+Eres un Asistente Experto en Contexto de Salud.
+REGLA DE ORO: En TODAS tus respuestas incluye al final: "⚠️ IMPORTANTE: No soy un profesional de la salud. Información educativa. Acuda a un médico."
 
-try:
-    modelos_encontrados = []
-    for m in genai.list_models():
-        # Solo nos interesan los modelos que sirven para generar texto (generateContent)
-        if 'generateContent' in m.supported_generation_methods:
-            modelos_encontrados.append(m.name)
+Tu tono y profundidad dependen del nivel seleccionado:
+- Nivel Básica: Explicación sencilla, analogías, para público general.
+- Nivel Media: Lenguaje formal, cita fuentes generales.
+- Nivel Experto: Terminología médica, patologías, protocolos, NOMs y efectos secundarios.
 
-    # 3. Mostrar resultados
-    if len(modelos_encontrados) > 0:
-        st.success(f"✅ ¡Conexión Exitosa! Se encontraron {len(modelos_encontrados)} modelos.")
-        st.markdown("### Copia uno de estos nombres exactos:")
-        for nombre in modelos_encontrados:
-            st.code(nombre) # Esto mostrará algo como models/gemini-pro
-    else:
-        st.warning("⚠️ La conexión funciona, pero la lista de modelos está vacía. Tu llave no tiene permisos para ver modelos.")
+Si el usuario pregunta algo ajeno a salud, responde amablemente que solo puedes hablar de temas médicos.
+"""
 
-except Exception as e:
-    st.error("❌ ERROR CRÍTICO AL LISTAR MODELOS:")
-    st.error(e)
-    st.markdown("""
-    **Posibles causas:**
-    1. La API Key es inválida.
-    2. El proyecto de Google Cloud no tiene habilitada la "Generative Language API".
-    3. Tu IP o región está bloqueada.
-    """)
+# --- GESTIÓN DE MEMORIA ---
+if "nivel" not in st.session_state:
+    st.session_state.nivel = None
+if "mensajes" not in st.session_state:
+    st.session_state.mensajes = []
+
+# Función para resetear
+def nueva_consulta():
+    st.session_state.nivel = None
+    st.session_state.mensajes = []
+    st.rerun()
+
+# --- INTERFAZ ---
+st.title("🩺 HealthExpert AI")
+
+# ESCENA 1: SELECCIÓN DE NIVEL
+if st.session_state.nivel is None:
+    st.markdown("### Bienvenido. Selecciona el nivel de profundidad para tu consulta:")
+    
+    col1, col2, col3 = st.columns(3)
+    if col1.button("🟢 BÁSICO\n(Sencillo)", use_container_width=True):
+        st.session_state.nivel = "Básica"
+        st.rerun()
+    if col2.button("🟡 MEDIO\n(Detallado)", use_container_width=True):
+        st.session_state.nivel = "Media"
+        st.rerun()
+    if col3.button("🔴 EXPERTO\n(Técnico)", use_container_width=True):
+        st.session_state.nivel = "Experto"
+        st.rerun()
+
+# ESCENA 2: CHAT ACTIVO
+else:
+    # Barra superior con estado y botón de salir
+    c1, c2 = st.columns([3, 1])
+    with c1:
+        st.info(f"Modo Activo: **Nivel {st.session_state.nivel}**")
+    with c2:
+        if st.button("🔄 Nueva Consulta"):
+            nueva_consulta()
+
+    # Mostrar historial
+    for m in st.session_state.mensajes:
+        with st.chat_message(m["role"]):
+            st.markdown(m["content"])
+
+    # Caja de entrada
+    prompt = st.chat_input("Escribe tu consulta médica aquí...")
+    
+    if prompt:
+        # 1. Mostrar mensaje usuario
+        st.chat_message("user").markdown(prompt)
+        st.session_state.mensajes.append({"role": "user", "content": prompt})
+
+        try:
+            # 2. Preparar el "Sándwich" de contexto para la IA
+            prompt_completo = f"""
+            {SYSTEM_PROMPT}
+            ----------------
+            CONTEXTO: El usuario eligió NIVEL {st.session_state.nivel}.
+            Pregunta del usuario: "{prompt}"
+            """
+            
+            # 3. LLAMADA AL MODELO (Usamos el que encontramos en tu lista)
+            model = genai.GenerativeModel('gemini-2.5-flash')
+            
+            with st.spinner("Analizando consulta..."):
+                response = model.generate_content(prompt_completo)
+                respuesta_ia = response.text
+
+            # 4. Mostrar respuesta IA
+            with st.chat_message("assistant"):
+                st.markdown(respuesta_ia)
+            st.session_state.mensajes.append({"role": "assistant", "content": respuesta_ia})
+            
+        except Exception as e:
+            st.error(f"Error de conexión: {e}")
