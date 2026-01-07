@@ -104,7 +104,8 @@ def crear_pdf(mensajes):
 
 # --- BARRA LATERAL (SIDEBAR) ---
 with st.sidebar:
-    st.title("🧬 QUANTUM")
+   # Usamos markdown para darle un estilo más pequeño pero similar
+st.markdown("<h2 style='text-align: center; color: #00C2FF;'>🧬 QUANTUM</h2>", unsafe_allow_html=True)
     st.caption("Sistema Privado v2.0")
     st.markdown("---")
     
