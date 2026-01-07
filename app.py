@@ -26,7 +26,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. Usamos HTML en lugar de st.title para aplicar la clase que creamos arriba
-st.title("🧬 QUANTUM")
+st.title("QUANTUM")
 
 # --- 🔐 CONTRASEÑA MAESTRA ---
 # Cambia esta palabra por la contraseña que tú quieras vender
