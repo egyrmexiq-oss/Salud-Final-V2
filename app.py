@@ -103,7 +103,7 @@ st.title("Quantum AI Health")
 
 if not acepta_terminos:
     st.info("👋 Bienvenido a QUANTUM. Para iniciar, por favor valida el aviso legal en el menú de la izquierda.")
-    st.image("https://www.freepik.com/free-vector/healthcare-madical-soft-blue-color-background_14239368.htm, width=500)
+    st.image("https://www.freepik.com/free-vector/healthcare-madical-soft-blue-color-background_14239368", width=500)
 
 else:
     # Mostrar Nivel Activo
