@@ -3,58 +3,41 @@ import google.generativeai as genai
 from fpdf import FPDF
 
 # --- CONFIGURACIÓN DE PÁGINA ---
-# --- APP PRINCIPAL CON ESTILO ---
-
-# 1. Inyectamos CSS para cargar la fuente "Orbitron" de Google y definir el estilo
-st.markdown("""
-    <style>
-        /* Importamos la fuente futurista de Google */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
-
-        /* Creamos una clase personalizada para el título */
-        .titulo-quantum {
-            font-family: 'Orbitron', sans-serif !important;
-            font-size: 3em !important;  /* Tamaño grande */
-            color: #00C2FF !important; /* Color azul cian tipo láser */
-            text-align: center !important;
-            text-transform: uppercase;
-            /* Efecto de brillo de neón opcional */
-            text-shadow: 0 0 10px #00C2FF, 0 0 20px #004e92;
-            margin-bottom: 20px !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# 2. Usamos HTML en lugar de st.title para aplicar la clase que creamos arriba
-st.title("🧬 QUANTUM")
-
-# --- 🔐 CONTRASEÑA MAESTRA ---
-# Cambia esta palabra por la contraseña que tú quieras vender
-PASSWORD_CORRECTO = "QUANTUM2026"
+st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wide")
 
 # --- GESTIÓN DE ESTADO (LOGIN) ---
-if "logueado" not in st.session_state:
-    st.session_state.logueado = False
+if "usuario_activo" not in st.session_state:
+    st.session_state.usuario_activo = None
 
-# --- PANTALLA DE LOGIN ---
-if not st.session_state.logueado:
-    st.markdown("## 🔒 Acceso Restringido - QUANTUM AI")
-    st.info("Este es un sistema privado para profesionales de la salud y pacientes autorizados.")
+# --- PANTALLA DE LOGIN (TIPO CAJERO AUTOMÁTICO) ---
+if not st.session_state.usuario_activo:
+    st.markdown("## 🔐 Quantum Access")
+    st.info("Introduce tu Código de Acceso Personal para iniciar sesión.")
     
-    password_input = st.text_input("Introduce tu Clave de Acceso:", type="password")
+    # Campo de entrada
+    input_code = st.text_input("Código de Tarjeta / Clave:", type="password")
     
-    if st.button("Ingresar"):
-        if password_input == PASSWORD_CORRECTO:
-            st.session_state.logueado = True
-            st.rerun()  # Recarga la página para entrar
-        else:
-            st.error("🚫 Clave incorrecta. Contacta al administrador.")
+    if st.button("Validar Acceso"):
+        # Accedemos a la lista de claves en los Secrets
+        try:
+            claves_validas = st.secrets["access_keys"]
+            
+            # Verificamos si lo que escribió el usuario está en nuestra lista
+            if input_code in claves_validas:
+                # ¡BINGO! Es una clave válida
+                nombre_cliente = claves_validas[input_code]
+                st.session_state.usuario_activo = nombre_cliente
+                st.toast(f"✅ Bienvenido, {nombre_cliente}", icon="🎉")
+                st.rerun()
+            else:
+                st.error("🚫 Código inválido o expirado.")
+        except:
+            st.error("⚠️ Error de configuración de claves.")
     
-    # Detenemos el código aquí si no está logueado
-    st.stop()
+    st.stop() # Frena el código aquí si no entró
 
 # ==========================================
-# 🚀 ZONA SEGURA: AQUÍ COMIENZA LA APP REAL
+# 🚀 ZONA SEGURA (SOLO ENTRAN SI EL CÓDIGO EXISTE)
 # ==========================================
 
 # --- CONEXIÓN API ---
@@ -72,119 +55,73 @@ REGLA DE ORO: En TODAS tus respuestas incluye al final: "⚠️ IMPORTANTE: No s
 Tu tono y profundidad dependen del nivel seleccionado.
 """
 
-# --- GESTIÓN DE MEMORIA CHAT ---
 if "mensajes" not in st.session_state:
     st.session_state.mensajes = []
 
-# --- FUNCIÓN: GENERAR PDF ---
+# --- FUNCIÓN PDF ---
 def crear_pdf(mensajes):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=10)
-    
     pdf.cell(0, 10, txt="Resumen de Consulta - QUANTUM AI", ln=1, align='C')
     pdf.ln(5)
-    
     for m in mensajes:
         rol = "USUARIO" if m["role"] == "user" else "QUANTUM"
-        # Limpieza básica
-        try:
-            texto_limpio = m['content'].encode('latin-1', 'replace').decode('latin-1')
-        except:
-            texto_limpio = m['content']
-            
-        pdf.set_font("Arial", 'B', 10)
-        pdf.cell(0, 8, txt=f"{rol}:", ln=1)
-        
-        pdf.set_font("Arial", '', 10)
-        pdf.multi_cell(0, 6, txt=texto_limpio)
-        pdf.ln(3)
-        
+        try: texto_limpio = m['content'].encode('latin-1', 'replace').decode('latin-1')
+        except: texto_limpio = m['content']
+        pdf.set_font("Arial", 'B', 10); pdf.cell(0, 8, txt=f"{rol}:", ln=1)
+        pdf.set_font("Arial", '', 10); pdf.multi_cell(0, 6, txt=texto_limpio); pdf.ln(3)
     return pdf.output(dest='S').encode('latin-1')
 
-# --- BARRA LATERAL (SIDEBAR) ---
+# --- BARRA LATERAL ---
 with st.sidebar:
-   # Usamos markdown para darle un estilo más pequeño pero similar
-st.markdown("<h2 style='text-align: center; color: #00C2FF;'>🧬 QUANTUM</h2>", unsafe_allow_html=True)
-    st.caption("Sistema Privado v2.0")
-    st.markdown("---")
+    st.title("🧬 QUANTUM")
+    # Mostramos quién está conectado
+    st.success(f"👤 {st.session_state.usuario_activo}")
     
-    # Botón para Cerrar Sesión
     if st.button("🔒 Cerrar Sesión"):
-        st.session_state.logueado = False
+        st.session_state.usuario_activo = None
         st.session_state.mensajes = []
         st.rerun()
     
     st.markdown("---")
-    
-    # 1. AVISO LEGAL
     st.markdown("### 1. Validación")
     acepta_terminos = st.checkbox("Acepto los términos de uso médico.")
     
     if acepta_terminos:
-        # 2. SELECTOR DE NIVEL
         st.markdown("### 2. Configuración")
-        nivel = st.radio(
-            "Nivel de detalle:",
-            ["Básica (Sencilla)", "Media (Detallada)", "Experta (Técnica)"]
-        )
+        nivel = st.radio("Nivel:", ["Básica", "Media", "Experta"])
         
-        # 3. HISTORIAL
-        st.markdown("---")
-        st.markdown("### 📜 Historial")
-        if not st.session_state.mensajes:
-            st.caption("Esperando consultas...")
-        else:
-            for m in st.session_state.mensajes:
-                if m["role"] == "user":
-                    st.text(f"• {m['content'][:25]}...")
-
-        # 4. BOTONES ACCIÓN
         st.markdown("---")
         c1, c2 = st.columns(2)
         if c1.button("Limpiar"):
-            st.session_state.mensajes = []
-            st.rerun()
-        
+            st.session_state.mensajes = []; st.rerun()
         if st.session_state.mensajes:
             pdf_bytes = crear_pdf(st.session_state.mensajes)
-            c2.download_button("Descargar", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
+            c2.download_button("PDF", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
 
-# --- ÁREA PRINCIPAL ---
+# --- APP PRINCIPAL ---
 st.title("Quantum AI Health")
 
 if not acepta_terminos:
-    st.info("👋 Bienvenido, Usuario Autorizado. Por favor acepta los términos en la barra lateral.")
-    # Imagen de respaldo de internet (la que te gustó)
-    st.image("https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg", use_container_width=True)
-
+    st.info(f"Hola {st.session_state.usuario_activo}. Valida el aviso legal para comenzar.")
+    try: st.image("image_143480.png", use_container_width=True)
+    except: st.image("https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg", use_container_width=True)
 else:
-    # CHAT ACTIVO
-    st.success(f"🟢 Conectado | Modo: **{nivel}**")
-
     for m in st.session_state.mensajes:
-        with st.chat_message(m["role"]):
-            st.markdown(m["content"])
+        with st.chat_message(m["role"]): st.markdown(m["content"])
 
-    prompt = st.chat_input(f"Consultar a Quantum ({nivel})...")
-    
+    prompt = st.chat_input(f"Consultar ({nivel})...")
     if prompt:
         st.session_state.mensajes.append({"role": "user", "content": prompt})
         st.chat_message("user").markdown(prompt)
-
         try:
-            prompt_completo = f"""
-            {SYSTEM_PROMPT}
-            CONTEXTO: El usuario eligió {nivel}.
-            Pregunta: "{prompt}"
-            """
+            prompt_completo = f"{SYSTEM_PROMPT}\nCONTEXTO: Nivel {nivel}. Pregunta: {prompt}"
             model = genai.GenerativeModel('gemini-2.5-flash')
             with st.spinner("Procesando..."):
                 response = model.generate_content(prompt_completo)
                 texto_ia = response.text
-            
             st.session_state.mensajes.append({"role": "assistant", "content": texto_ia})
             st.rerun()
-                
-        except Exception as e:
+        except Exception as e: st.error(f"Error: {e}")
             st.error(f"Error: {e}")
