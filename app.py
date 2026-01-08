@@ -1,5 +1,12 @@
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
+    
+    # --- CONTADOR DE VISITAS (Badge) ---
+    # Esto genera una imagen que cuenta cada vez que alguien carga la página
+    st.markdown("![Visitas](https://visit-counter.vercel.app/counter.png?page=QuantumAI_Health_Login&s=20&c=00C2FF&t=FFFFFF)")
+    st.caption("Profesionales conectados globalmente")
+    
+    st.info("Introduce tu Código de Acceso Personal para iniciar sesión.")
 import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
