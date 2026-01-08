@@ -145,6 +145,8 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+# 2. Usamos HTML en lugar de st.title para aplicar la clase que creamos arriba
+st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
 
 if not acepta_terminos:
     st.info("👋 Bienvenido, Usuario Autorizado. Por favor acepta los términos en la barra lateral.")
