@@ -24,7 +24,7 @@ if not st.session_state.logueado:
     
     st.caption("Profesionales conectados globalmente")
     
-    st.info("Introduce tu Código de Acceso Personal para iniciar sesión.") #egyr
+    #st.info("Introduce tu Código de Acceso Personal para iniciar sesión.") #egyr
     password_input = st.text_input("Introduce tu Clave de Acceso:", type="password")
     
     if st.button("Ingresar"):
