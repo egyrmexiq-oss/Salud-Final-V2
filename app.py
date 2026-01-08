@@ -1,3 +1,5 @@
+if not st.session_state.usuario_activo:
+    st.markdown("## 🔐 Quantum Access")
 import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
@@ -183,3 +185,16 @@ else:
                 
         except Exception as e:
             st.error(f"Error: {e}")
+
+            # --- PIE DE PÁGINA (FOOTER) ---
+    st.markdown("---")
+    col_foot1, col_foot2 = st.columns(2)
+    
+    with col_foot1:
+        st.markdown("**Quantum AI Health v2.0**")
+        st.caption("© 2026 Todos los derechos reservados.")
+    
+    with col_foot2:
+        st.markdown("Estadísticas de uso:")
+        # Usamos el mismo contador para que sume igual
+        st.markdown("![Popularidad](https://visit-counter.vercel.app/counter.png?page=QuantumAI_Health_Login&s=14&c=555555&t=EEEEEE)")
