@@ -1,5 +1,3 @@
-if not st.session_state.usuario_activo:
-    st.markdown("## 🔐 Quantum Access")
 import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
