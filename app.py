@@ -17,7 +17,16 @@ if "logueado" not in st.session_state:
 if not st.session_state.logueado:
     st.markdown("## 🔒 Acceso Restringido - QUANTUM AI")
     st.info("Este es un sistema privado para profesionales de la salud y pacientes autorizados.")
+# --- CONTADOR HITS (NUEVO) ---
+    # Este enlace genera un botón visual automático.
+    # El parámetro 'url' es el identificador único de tu app.
+    st.markdown("[![Visitas](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-app&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITAS&edge_flat=false)](https://hits.seeyoufarm.com)")
     
+    st.caption("Profesionales conectados globalmente")
+    
+    st.info("Introduce tu Código de Acceso Personal para iniciar sesión.")
+    
+    st.info("Introduce tu Código de Acceso Personal para iniciar sesión.") #egyr
     password_input = st.text_input("Introduce tu Clave de Acceso:", type="password")
     
     if st.button("Ingresar"):
@@ -184,7 +193,7 @@ else:
         except Exception as e:
             st.error(f"Error: {e}")
 
-            # --- PIE DE PÁGINA (FOOTER) ---
+# --- PIE DE PÁGINA (FOOTER) ---
     st.markdown("---")
     col_foot1, col_foot2 = st.columns(2)
     
@@ -193,6 +202,7 @@ else:
         st.caption("© 2026 Todos los derechos reservados.")
     
     with col_foot2:
-        st.markdown("Estadísticas de uso:")
-        # Usamos el mismo contador para que sume igual
+        st.markdown("Popularidad del sistema:")
+        # Usamos el mismo enlace, pero como imagen simple para que sume al mismo contador
+        st.image("https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-app&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=TOTAL&edge_flat=false")
         st.markdown("![Popularidad](https://visit-counter.vercel.app/counter.png?page=QuantumAI_Health_Login&s=14&c=555555&t=EEEEEE)")
