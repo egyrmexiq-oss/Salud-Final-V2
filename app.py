@@ -1,7 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
-import time  # <--- IMPORTANTE: Necesitamos esto para el truco anti-caché
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wide")
@@ -30,11 +29,10 @@ if "usuario_activo" not in st.session_state:
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
-    # --- CONTADOR ANTI-CACHÉ ---
-    # Usamos time.time() para crear un número único cada vez. 
-    # Esto obliga al navegador a actualizar la imagen.
-    ts = int(time.time())
-    st.markdown(f"[![Visitas](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-app-v2&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITAS&edge_flat=false&dummy={ts})](https://hits.seeyoufarm.com)")
+    # --- CONTADOR RÁPIDO (NUEVO PROVEEDOR) ---
+    # Usamos 'visitor-badge.laobi.icu' que es mucho más veloz.
+    # page_id = identificador único de tu app
+    st.markdown("![Usuarios](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Usuarios&right_color=%2300C2FF)")
     
     st.caption("Profesionales conectados globalmente")
     
@@ -51,7 +49,6 @@ if not st.session_state.usuario_activo:
                 nombre_cliente = claves_validas[codigo_usuario]
                 st.session_state.usuario_activo = nombre_cliente
                 st.toast(f"✅ Bienvenido, {nombre_cliente}", icon="🎉")
-                time.sleep(1) # Pequeña pausa para ver el mensaje
                 st.rerun()
             else:
                 st.error(f"🚫 El código '{codigo_usuario}' no es válido.")
@@ -124,7 +121,6 @@ with st.sidebar:
             c2.download_button("PDF", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
 
 # --- APP PRINCIPAL ---
-# Título con estilo futurista
 st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
 
 if not acepta_terminos:
@@ -159,6 +155,5 @@ with col_foot1:
 
 with col_foot2:
     st.markdown("Estadísticas de uso:")
-    # Truco anti-caché también en el footer
-    ts_foot = int(time.time())
-    st.markdown(f"![Total](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-app-v2&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=TOTAL&edge_flat=false&dummy={ts_foot})")
+    # Usamos el mismo identificador (page_id) para que sume al mismo contador
+    st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
