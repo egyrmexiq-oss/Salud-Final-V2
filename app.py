@@ -26,41 +26,40 @@ st.markdown("""
 if "usuario_activo" not in st.session_state:
     st.session_state.usuario_activo = None
 
-# --- PANTALLA DE LOGIN (VERSIÓN GIF FUTURISTA) ---
+# --- PANTALLA DE LOGIN (VERSIÓN CINEMÁTICA) ---
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
     # ---------------------------------------------------------
-    # 🧠 ANIMACIÓN DE CEREBRO DIGITAL
+    # 🎥 VIDEO DE FONDO (CEREBRO DIGITAL)
     # ---------------------------------------------------------
     
-    # Usamos HTML para darle el borde brillante (Glow Effect)
-    gif_html = """
+    # Usamos HTML para mostrar un video en bucle (loop), mudo y auto-reproducible.
+    # Este video es una red neuronal azul que combina con tu marca.
+    video_html = """
     <style>
-        .quantum-container {
+        .video-container {
             display: flex;
             justify_content: center;
             margin-bottom: 20px;
             border-radius: 15px;
             overflow: hidden;
-            /* El borde azul neón que te gustó */
-            box-shadow: 0 0 20px #00C2FF, 0 0 40px rgba(0, 194, 255, 0.3);
-            border: 1px solid #00C2FF;
+            box-shadow: 0 0 20px #00C2FF; /* Resplandor Azul Quantum */
         }
-        .quantum-img {
+        video {
             width: 100%;
-            max-width: 600px;
-            /* Filtro para asegurar que se vea azulado/cyberpunk */
-            filter: hue-rotate(180deg) brightness(0.9); 
+            max-width: 700px;
+            border-radius: 15px;
         }
     </style>
-    
-    <div class="quantum-container">
-        <img src="https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif" class="quantum-img">
+    <div class="video-container">
+        <video autoplay loop muted playsinline>
+            <source src="https://cdn.pixabay.com/video/2019/04/20/22908-331569022_large.mp4" type="video/mp4">
+            Tu navegador no soporta video.
+        </video>
     </div>
     """
-    
-    st.markdown(gif_html, unsafe_allow_html=True)
+    st.markdown(video_html, unsafe_allow_html=True)
     
     # ---------------------------------------------------------
     
@@ -86,7 +85,6 @@ if not st.session_state.usuario_activo:
             st.info("Asegúrate de configurar [access_keys] en los Secrets.")
     
     st.stop()
-
 # ==========================================
 # 🚀 ZONA SEGURA - QUANTUM APP
 # ==========================================
