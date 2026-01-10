@@ -26,17 +26,40 @@ st.markdown("""
 if "usuario_activo" not in st.session_state:
     st.session_state.usuario_activo = None
 
-# --- PANTALLA DE LOGIN CON ROBOT 3D (VERSIÓN IFRAME) ---
+# --- PANTALLA DE LOGIN (VERSIÓN CINEMÁTICA) ---
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
     # ---------------------------------------------------------
-    # 🤖 ROBOT 3D - VERSIÓN ESTABLE
+    # 🎥 VIDEO DE FONDO (CEREBRO DIGITAL)
     # ---------------------------------------------------------
     
-    # Usamos un iframe directo a una escena pública de Spline.
-    # Esta URL carga un Robot/Cyborg interactivo que funciona siempre.
-    st.components.v1.iframe("https://my.spline.design/robot-e685c229384534a70659902636f82792/", height=500)
+    # Usamos HTML para mostrar un video en bucle (loop), mudo y auto-reproducible.
+    # Este video es una red neuronal azul que combina con tu marca.
+    video_html = """
+    <style>
+        .video-container {
+            display: flex;
+            justify_content: center;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px #00C2FF; /* Resplandor Azul Quantum */
+        }
+        video {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 15px;
+        }
+    </style>
+    <div class="video-container">
+        <video autoplay loop muted playsinline>
+            <source src="https://cdn.pixabay.com/video/2019/04/20/22908-331569022_large.mp4" type="video/mp4">
+            Tu navegador no soporta video.
+        </video>
+    </div>
+    """
+    st.markdown(video_html, unsafe_allow_html=True)
     
     # ---------------------------------------------------------
     
