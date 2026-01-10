@@ -1,6 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
+import streamlit.components.v1 as components
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wide")
