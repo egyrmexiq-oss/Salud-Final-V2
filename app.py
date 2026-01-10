@@ -36,7 +36,7 @@ if not st.session_state.usuario_activo:
     
     # Usamos un iframe directo a una escena pública de Spline.
     # Esta URL carga un Robot/Cyborg interactivo que funciona siempre.
-    st.components.v1.iframe(https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=500)
+    st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=500)
     
     # ---------------------------------------------------------
     
