@@ -26,40 +26,41 @@ st.markdown("""
 if "usuario_activo" not in st.session_state:
     st.session_state.usuario_activo = None
 
-# --- PANTALLA DE LOGIN (VERSIÓN CINEMÁTICA) ---
+# --- PANTALLA DE LOGIN (VERSIÓN GIF FUTURISTA) ---
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
     # ---------------------------------------------------------
-    # 🎥 VIDEO DE FONDO (CEREBRO DIGITAL)
+    # 🧠 ANIMACIÓN DE CEREBRO DIGITAL
     # ---------------------------------------------------------
     
-    # Usamos HTML para mostrar un video en bucle (loop), mudo y auto-reproducible.
-    # Este video es una red neuronal azul que combina con tu marca.
-    video_html = """
+    # Usamos HTML para darle el borde brillante (Glow Effect)
+    gif_html = """
     <style>
-        .video-container {
+        .quantum-container {
             display: flex;
             justify_content: center;
             margin-bottom: 20px;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 0 20px #00C2FF; /* Resplandor Azul Quantum */
+            /* El borde azul neón que te gustó */
+            box-shadow: 0 0 20px #00C2FF, 0 0 40px rgba(0, 194, 255, 0.3);
+            border: 1px solid #00C2FF;
         }
-        video {
+        .quantum-img {
             width: 100%;
-            max-width: 700px;
-            border-radius: 15px;
+            max-width: 600px;
+            /* Filtro para asegurar que se vea azulado/cyberpunk */
+            filter: hue-rotate(180deg) brightness(0.9); 
         }
     </style>
-    <div class="video-container">
-        <video autoplay loop muted playsinline>
-            <source src="https://cdn.pixabay.com/video/2019/04/20/22908-331569022_large.mp4" type="video/mp4">
-            Tu navegador no soporta video.
-        </video>
+    
+    <div class="quantum-container">
+        <img src="https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif" class="quantum-img">
     </div>
     """
-    st.markdown(video_html, unsafe_allow_html=True)
+    
+    st.markdown(gif_html, unsafe_allow_html=True)
     
     # ---------------------------------------------------------
     
