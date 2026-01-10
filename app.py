@@ -26,18 +26,22 @@ st.markdown("""
 if "usuario_activo" not in st.session_state:
     st.session_state.usuario_activo = None
 
-# --- PANTALLA DE LOGIN ---
+# --- PANTALLA DE LOGIN CON ROBOT 3D (VERSIÓN IFRAME) ---
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
-    # --- CONTADOR RÁPIDO (NUEVO PROVEEDOR) ---
-    # Usamos 'visitor-badge.laobi.icu' que es mucho más veloz.
-    # page_id = identificador único de tu app
-    st.markdown("![Usuarios](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Usuarios&right_color=%2300C2FF)")
+    # ---------------------------------------------------------
+    # 🤖 ROBOT 3D - VERSIÓN ESTABLE
+    # ---------------------------------------------------------
     
-    st.caption("Profesionales conectados globalmente")
+    # Usamos un iframe directo a una escena pública de Spline.
+    # Esta URL carga un Robot/Cyborg interactivo que funciona siempre.
+    st.components.v1.iframe("https://my.spline.design/robot-e685c229384534a70659902636f82792/", height=500)
     
-    st.info("Introduce tu Código de Acceso Personal para iniciar sesión.")
+    # ---------------------------------------------------------
+    
+    st.caption("Sistema de Inteligencia Artificial Avanzada")
+    st.info("Introduce tu Código de Acceso Personal.")
     
     input_code = st.text_input("Código de Tarjeta / Clave:", type="password")
     
