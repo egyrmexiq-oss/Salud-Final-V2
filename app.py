@@ -11,14 +11,11 @@ st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wid
 # 💎 CARGA DE ALIADOS DESDE SECRETS
 # ==========================================
 try:
-    # Intentamos leer la sección "aliados" de los secrets
-    # .values() convierte el diccionario de diccionarios en una lista limpia
     DIRECTORIO_MEDICOS = list(st.secrets["aliados"].values())
 except Exception:
-    # Si no hay médicos configurados, usamos una lista vacía para no romper la app
     DIRECTORIO_MEDICOS = []
 
-# Preparamos el texto para la IA (Solo si hay médicos)
+# Preparamos el texto para la IA
 if DIRECTORIO_MEDICOS:
     TEXTO_DIRECTORIO = "\n".join([f"- {m['nombre']} ({m['especialidad']}): {m['desc']}. Contacto: {m['contacto']}" for m in DIRECTORIO_MEDICOS])
     INSTRUCCION_EXTRA = f"""
@@ -51,6 +48,7 @@ st.markdown("""
             border-radius: 10px;
             margin-bottom: 10px;
             box-shadow: 0 0 5px rgba(0, 194, 255, 0.2);
+            text-align: center; /* Centrado para que se vea más elegante */
         }
     </style>
 """, unsafe_allow_html=True)
@@ -133,27 +131,50 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # --- SECCIÓN DE PUBLICIDAD (DINÁMICA DESDE SECRETS) ---
+    # --- SECCIÓN DE CARRUSEL DE ALIADOS ---
     if DIRECTORIO_MEDICOS:
         st.markdown("### 👨‍⚕️ Especialistas Aliados")
-        st.caption("Recomendados:")
         
-        medico_destacado = random.choice(DIRECTORIO_MEDICOS)
+        # 1. Inicializamos el índice del carrusel si no existe
+        if "indice_medico" not in st.session_state:
+            st.session_state.indice_medico = 0
+            
+        # 2. Botones de Navegación (Anterior / Siguiente)
+        col_nav1, col_nav2 = st.columns(2)
+        
+        with col_nav1:
+            if st.button("⬅️ Anterior"):
+                st.session_state.indice_medico -= 1
+        with col_nav2:
+            if st.button("Siguiente ➡️"):
+                st.session_state.indice_medico += 1
+        
+        # 3. Lógica del "Bucle Infinito" (Si llega al final, vuelve al principio)
+        # El operador % (módulo) hace la magia matemática
+        total_medicos = len(DIRECTORIO_MEDICOS)
+        indice_actual = st.session_state.indice_medico % total_medicos
+        
+        # 4. Seleccionamos al médico actual
+        medico_actual = DIRECTORIO_MEDICOS[indice_actual]
+        
+        # 5. Mostramos la Tarjeta Pro
         st.markdown(f"""
         <div class="medico-card">
-            <strong>{medico_destacado['nombre']}</strong><br>
-            <span style="color: #00C2FF;">{medico_destacado['especialidad']}</span><br>
-            <small>{medico_destacado['desc']}</small><br>
+            <strong>{medico_actual['nombre']}</strong><br>
+            <span style="color: #00C2FF; font-weight: bold;">{medico_actual['especialidad']}</span><br>
+            <hr style="border-color: #333; margin: 5px 0;">
+            <small style="color: #bbb;">{medico_actual['desc']}</small><br>
             <br>
-            📞 {medico_destacado['contacto']}
+            <div style="background: #00C2FF; color: black; border-radius: 5px; padding: 2px;">
+            📞 {medico_actual['contacto']}
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
-        with st.expander("Ver Todos"):
-            for med in DIRECTORIO_MEDICOS:
-                st.markdown(f"**{med['nombre']}**\n{med['especialidad']}")
-                st.markdown("---")
+        # Indicador de posición (ej: 1 de 3)
+        st.caption(f"Socio {indice_actual + 1} de {total_medicos}")
 
+    st.markdown("---")
     st.markdown("### Configuración")
     nivel = st.radio("Nivel:", ["Básica", "Media", "Experta"])
     
@@ -189,7 +210,7 @@ if prompt:
 st.markdown("---")
 col_foot1, col_foot2 = st.columns(2)
 with col_foot1:
-    st.markdown("**Quantum AI Health v2.2**")
+    st.markdown("**Quantum AI Health v2.3**")
     st.caption("© 2026 Todos los derechos reservados.")
 with col_foot2:
     st.markdown("Estadísticas de uso:")
