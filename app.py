@@ -212,6 +212,6 @@ col_foot1, col_foot2 = st.columns(2)
 with col_foot1:
     st.markdown("**Quantum AI Health v2.3**")
     st.caption("© 2026 Todos los derechos reservados.")
-with col_foot2:
-    st.markdown("Estadísticas de uso:")
-    st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
+#with col_foot2:
+    #st.markdown("Estadísticas de uso:")
+    #st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
