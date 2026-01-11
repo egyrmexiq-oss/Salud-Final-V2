@@ -17,7 +17,6 @@ except Exception:
 
 # Preparamos texto para la IA
 if DIRECTORIO_MEDICOS:
-    # Usamos una versión simplificada para el prompt del sistema
     TEXTO_DIRECTORIO = "\n".join([f"- {m['nombre']} ({m['especialidad']}): {m['desc']}" for m in DIRECTORIO_MEDICOS])
     INSTRUCCION_EXTRA = f"""
     TU MISIÓN COMERCIAL:
@@ -52,7 +51,6 @@ st.markdown("""
             box-shadow: 0 0 5px rgba(0, 194, 255, 0.2);
             text-align: center;
         }
-        /* Estilo para el dato de contacto cambiante */
         .contacto-dato {
             font-size: 1.1em;
             color: #ffffff;
@@ -72,7 +70,12 @@ if "usuario_activo" not in st.session_state:
 # --- PANTALLA DE LOGIN ---
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
-    st.components.v1.iframe("https://my.spline.design/claritystream-f69086fd36434af2856c7cd8d719da3d/", height=500)
+    
+    # ---------------------------------------------------------
+    # 🌊 AQUÍ ESTÁ LA ONDA DE COLORES (RECUPERADA) 
+    # ---------------------------------------------------------
+    st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=500)
+    
     st.caption("Sistema de Inteligencia Artificial Avanzada")
     st.info("Introduce tu Código de Acceso Personal.")
     
@@ -137,7 +140,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # 1. NIVEL Y ACCIONES (AHORA ARRIBA - PRIORIDAD ALTA)
+    # 1. NIVEL Y ACCIONES (ARRIBA)
     st.markdown("### ⚙️ Panel de Control")
     nivel = st.radio("Nivel de Respuesta:", ["Básica", "Media", "Experta"])
     
@@ -150,20 +153,16 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # 2. ALIADOS MÉDICOS (AHORA ABAJO - ZONA DE PROMOCIÓN)
+    # 2. ALIADOS MÉDICOS (ABAJO - DOBLE SCROLL)
     if DIRECTORIO_MEDICOS:
         st.markdown("### 👨‍⚕️ Red de Especialistas")
         
-        # --- ESTADOS DEL CARRUSEL ---
         if "indice_medico" not in st.session_state: st.session_state.indice_medico = 0
         if "indice_contacto" not in st.session_state: st.session_state.indice_contacto = 0
         
-        # --- SELECCIÓN DE MÉDICO ---
         total_medicos = len(DIRECTORIO_MEDICOS)
         medico_actual = DIRECTORIO_MEDICOS[st.session_state.indice_medico % total_medicos]
         
-        # --- DEFINICIÓN DE CONTACTOS (SCROLL INTERNO) ---
-        # Lista de tipos de contacto disponibles
         tipos_contacto = [
             {"icono": "📞", "label": "Teléfono", "valor": medico_actual.get("telefono", "N/D")},
             {"icono": "💬", "label": "WhatsApp", "valor": medico_actual.get("whatsapp", "N/D")},
@@ -171,8 +170,7 @@ with st.sidebar:
             {"icono": "🌐", "label": "Web", "valor": medico_actual.get("web", "N/D")}
         ]
         
-        # --- TARJETA DEL MÉDICO ---
-        # Parte Superior (Fija)
+        # Tarjeta Fija
         st.markdown(f"""
         <div class="medico-card">
             <strong>{medico_actual['nombre']}</strong><br>
@@ -182,47 +180,39 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
 
-        # --- CONTROLES DE CONTACTO (EL SCROLL QUE PEDISTE) ---
-        # Seleccionamos el contacto actual basado en el índice
+        # Scroll de Contacto (Flechas pequeñas)
         contacto_actual = tipos_contacto[st.session_state.indice_contacto % len(tipos_contacto)]
-        
-        # Botones de navegación de CONTACTO
         c_prev, c_display, c_next = st.columns([1, 4, 1])
         
         with c_prev:
             if st.button("◀", key="contact_prev"):
-                st.session_state.indice_contacto -= 1
-                st.rerun()
-        
+                st.session_state.indice_contacto -= 1; st.rerun()
         with c_display:
-            # Mostramos el contacto actual con estilo destacado
             st.markdown(f"""
             <div style="text-align: center;">
                 <span style="font-size: 0.8em; color: #888;">{contacto_actual['icono']} {contacto_actual['label']}</span><br>
                 <div class="contacto-dato">{contacto_actual['valor']}</div>
             </div>
             """, unsafe_allow_html=True)
-            
         with c_next:
             if st.button("▶", key="contact_next"):
-                st.session_state.indice_contacto += 1
-                st.rerun()
+                st.session_state.indice_contacto += 1; st.rerun()
 
         st.markdown("---")
         
-        # --- NAVEGACIÓN ENTRE MÉDICOS (ABAJO DEL TODO) ---
+        # Scroll de Médicos (Botones grandes)
         col_nav1, col_nav2 = st.columns(2)
         with col_nav1:
             if st.button("⬅️ Otro Dr."):
                 st.session_state.indice_medico -= 1
-                st.session_state.indice_contacto = 0 # Reiniciar contacto al cambiar Dr
+                st.session_state.indice_contacto = 0 # Reset contacto
                 st.rerun()
         with col_nav2:
             if st.button("Siguiente ➡️"):
                 st.session_state.indice_medico += 1
                 st.session_state.indice_contacto = 0
                 st.rerun()
-                
+        
         st.caption(f"Socio { (st.session_state.indice_medico % total_medicos) + 1} de {total_medicos}")
 
 # --- CHAT PRINCIPAL ---
@@ -249,10 +239,8 @@ if prompt:
 st.markdown("---")
 col_foot1, col_foot2 = st.columns(2)
 with col_foot1:
-    st.markdown("**Quantum AI Health v2.4**")
+    st.markdown("**Quantum AI Health v2.5**")
     st.caption("© 2026 Todos los derechos reservados.")
 #with col_foot2:
-    #st.markdown("Estadísticas de uso:")
-    #st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
     #st.markdown("Estadísticas de uso:")
     #st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
