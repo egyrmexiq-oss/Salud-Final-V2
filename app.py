@@ -2,11 +2,36 @@ import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
 import streamlit.components.v1 as components
+import random
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wide")
 
-# --- ESTILOS CSS (TIPOGRAFÍA FUTURISTA) ---
+# ==========================================
+# 💎 CARGA DE ALIADOS DESDE SECRETS
+# ==========================================
+try:
+    # Intentamos leer la sección "aliados" de los secrets
+    # .values() convierte el diccionario de diccionarios en una lista limpia
+    DIRECTORIO_MEDICOS = list(st.secrets["aliados"].values())
+except Exception:
+    # Si no hay médicos configurados, usamos una lista vacía para no romper la app
+    DIRECTORIO_MEDICOS = []
+
+# Preparamos el texto para la IA (Solo si hay médicos)
+if DIRECTORIO_MEDICOS:
+    TEXTO_DIRECTORIO = "\n".join([f"- {m['nombre']} ({m['especialidad']}): {m['desc']}. Contacto: {m['contacto']}" for m in DIRECTORIO_MEDICOS])
+    INSTRUCCION_EXTRA = f"""
+    TU MISIÓN COMERCIAL:
+    Tienes acceso a una red de Aliados Médicos. Si el síntoma coincide, sugiere contactar a:
+    {TEXTO_DIRECTORIO}
+    """
+else:
+    INSTRUCCION_EXTRA = ""
+
+# ==========================================
+# 🎨 ESTILOS CSS
+# ==========================================
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
@@ -19,6 +44,14 @@ st.markdown("""
             text-shadow: 0 0 10px #00C2FF, 0 0 20px #004e92;
             margin-bottom: 20px !important;
         }
+        .medico-card {
+            background-color: #0e1117;
+            border: 1px solid #00C2FF;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 0 5px rgba(0, 194, 255, 0.2);
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -26,19 +59,12 @@ st.markdown("""
 if "usuario_activo" not in st.session_state:
     st.session_state.usuario_activo = None
 
-# --- PANTALLA DE LOGIN CON ROBOT 3D (VERSIÓN IFRAME) ---
+# --- PANTALLA DE LOGIN ---
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
-    # ---------------------------------------------------------
-    # 🤖 ROBOT 3D - VERSIÓN ESTABLE
-    # ---------------------------------------------------------
-    
-    # Usamos un iframe directo a una escena pública de Spline.
-    # Esta URL carga un Robot/Cyborg interactivo que funciona siempre.
-    st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=500)
-    
-    # ---------------------------------------------------------
+    # 🔗 ANIMACIÓN DE LOGIN (Onda Colores)
+    st.components.v1.iframe("https://my.spline.design/claritystream-f69086fd36434af2856c7cd8d719da3d/", height=500)
     
     st.caption("Sistema de Inteligencia Artificial Avanzada")
     st.info("Introduce tu Código de Acceso Personal.")
@@ -58,15 +84,14 @@ if not st.session_state.usuario_activo:
             else:
                 st.error(f"🚫 El código '{codigo_usuario}' no es válido.")
         except Exception as e:
-            st.error(f"⚠️ Error verificando claves: {e}")
-            st.info("Asegúrate de configurar [access_keys] en los Secrets.")
-    
+            st.error(f"⚠️ Error: {e}")
+            st.info("Configura [access_keys] en Secrets.")
     st.stop()
+
 # ==========================================
-# 🚀 ZONA SEGURA - QUANTUM APP
+# 🚀 ZONA SEGURA
 # ==========================================
 
-# --- CONEXIÓN API ---
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
@@ -74,16 +99,16 @@ except Exception:
     st.error("⚠️ Error: No se encontró la API KEY.")
     st.stop()
 
-SYSTEM_PROMPT = """
+SYSTEM_PROMPT = f"""
 Eres QUANTUM, un Asistente Experto en Salud.
 REGLA DE ORO: En TODAS tus respuestas incluye al final: "⚠️ IMPORTANTE: No soy un profesional de la salud. Información educativa. Acuda a un médico."
+{INSTRUCCION_EXTRA}
 Tu tono y profundidad dependen del nivel seleccionado.
 """
 
 if "mensajes" not in st.session_state:
     st.session_state.mensajes = []
 
-# --- FUNCIÓN PDF ---
 def crear_pdf(mensajes):
     pdf = FPDF()
     pdf.add_page()
@@ -104,60 +129,68 @@ with st.sidebar:
     st.success(f"👤 {st.session_state.usuario_activo}")
     
     if st.button("🔒 Cerrar Sesión"):
-        st.session_state.usuario_activo = None
-        st.session_state.mensajes = []
-        st.rerun()
+        st.session_state.usuario_activo = None; st.session_state.mensajes = []; st.rerun()
     
     st.markdown("---")
-    st.markdown("### 1. Validación")
-    acepta_terminos = st.checkbox("Acepto los términos de uso médico.")
     
-    if acepta_terminos:
-        st.markdown("### 2. Configuración")
-        nivel = st.radio("Nivel:", ["Básica", "Media", "Experta"])
+    # --- SECCIÓN DE PUBLICIDAD (DINÁMICA DESDE SECRETS) ---
+    if DIRECTORIO_MEDICOS:
+        st.markdown("### 👨‍⚕️ Especialistas Aliados")
+        st.caption("Recomendados:")
         
-        st.markdown("---")
-        c1, c2 = st.columns(2)
-        if c1.button("Limpiar"):
-            st.session_state.mensajes = []; st.rerun()
-        if st.session_state.mensajes:
-            pdf_bytes = crear_pdf(st.session_state.mensajes)
-            c2.download_button("PDF", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
+        medico_destacado = random.choice(DIRECTORIO_MEDICOS)
+        st.markdown(f"""
+        <div class="medico-card">
+            <strong>{medico_destacado['nombre']}</strong><br>
+            <span style="color: #00C2FF;">{medico_destacado['especialidad']}</span><br>
+            <small>{medico_destacado['desc']}</small><br>
+            <br>
+            📞 {medico_destacado['contacto']}
+        </div>
+        """, unsafe_allow_html=True)
+        
+        with st.expander("Ver Todos"):
+            for med in DIRECTORIO_MEDICOS:
+                st.markdown(f"**{med['nombre']}**\n{med['especialidad']}")
+                st.markdown("---")
 
-# --- APP PRINCIPAL ---
+    st.markdown("### Configuración")
+    nivel = st.radio("Nivel:", ["Básica", "Media", "Experta"])
+    
+    st.markdown("---")
+    c1, c2 = st.columns(2)
+    if c1.button("Limpiar"):
+        st.session_state.mensajes = []; st.rerun()
+    if st.session_state.mensajes:
+        pdf_bytes = crear_pdf(st.session_state.mensajes)
+        c2.download_button("PDF", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
+
+# --- CHAT ---
 st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
 
-if not acepta_terminos:
-    st.info(f"Hola {st.session_state.usuario_activo}. Valida el aviso legal para comenzar.")
-    try: st.image("image_143480.png", use_container_width=True)
-    except: st.image("https://cdn.pixabay.com/photo/2018/05/08/08/44/artificial-intelligence-3382507_1280.jpg", use_container_width=True)
-else:
-    for m in st.session_state.mensajes:
-        with st.chat_message(m["role"]): st.markdown(m["content"])
+for m in st.session_state.mensajes:
+    with st.chat_message(m["role"]): st.markdown(m["content"])
 
-    prompt = st.chat_input(f"Consultar ({nivel})...")
-    if prompt:
-        st.session_state.mensajes.append({"role": "user", "content": prompt})
-        st.chat_message("user").markdown(prompt)
-        try:
-            prompt_completo = f"{SYSTEM_PROMPT}\nCONTEXTO: Nivel {nivel}. Pregunta: {prompt}"
-            model = genai.GenerativeModel('gemini-2.5-flash')
-            with st.spinner("Procesando..."):
-                response = model.generate_content(prompt_completo)
-                texto_ia = response.text
-            st.session_state.mensajes.append({"role": "assistant", "content": texto_ia})
-            st.rerun()
-        except Exception as e: st.error(f"Error: {e}")
+prompt = st.chat_input(f"Consultar ({nivel})...")
+if prompt:
+    st.session_state.mensajes.append({"role": "user", "content": prompt})
+    st.chat_message("user").markdown(prompt)
+    try:
+        prompt_completo = f"{SYSTEM_PROMPT}\nCONTEXTO: Nivel {nivel}. Pregunta: {prompt}"
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        with st.spinner("Procesando..."):
+            response = model.generate_content(prompt_completo)
+            texto_ia = response.text
+        st.session_state.mensajes.append({"role": "assistant", "content": texto_ia})
+        st.rerun()
+    except Exception as e: st.error(f"Error: {e}")
 
-# --- PIE DE PÁGINA (FOOTER) ---
+# --- FOOTER ---
 st.markdown("---")
 col_foot1, col_foot2 = st.columns(2)
-
 with col_foot1:
-    st.markdown("**Quantum AI Health v2.0**")
+    st.markdown("**Quantum AI Health v2.2**")
     st.caption("© 2026 Todos los derechos reservados.")
-
 with col_foot2:
     st.markdown("Estadísticas de uso:")
-    # Usamos el mismo identificador (page_id) para que sume al mismo contador
     st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
