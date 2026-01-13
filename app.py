@@ -8,23 +8,17 @@ import random
 st.set_page_config(page_title="Quantum AI Health", page_icon="🧬", layout="wide")
 
 # ==========================================
-# 💎 CARGA DE ALIADOS
+# 💎 CARGA DE ALIADOS & FILTROS
 # ==========================================
 try:
-    DIRECTORIO_MEDICOS = list(st.secrets["aliados"].values())
+    TODOS_LOS_MEDICOS = list(st.secrets["aliados"].values())
 except Exception:
-    DIRECTORIO_MEDICOS = []
+    TODOS_LOS_MEDICOS = []
 
-# Preparamos texto para la IA
-if DIRECTORIO_MEDICOS:
-    TEXTO_DIRECTORIO = "\n".join([f"- {m['nombre']} ({m['especialidad']}): {m['desc']}" for m in DIRECTORIO_MEDICOS])
-    INSTRUCCION_EXTRA = f"""
-    TU MISIÓN COMERCIAL:
-    Tienes acceso a una red de Aliados Médicos. Si el síntoma coincide, sugiere contactar a:
-    {TEXTO_DIRECTORIO}
-    """
-else:
-    INSTRUCCION_EXTRA = ""
+# --- LÓGICA DE FILTRADO (Deseo #6) ---
+# Primero obtenemos las ciudades únicas disponibles
+ciudades_disponibles = sorted(list(set(m.get('ciudad', 'General') for m in TODOS_LOS_MEDICOS)))
+ciudades_disponibles.insert(0, "Todas las Ubicaciones")
 
 # ==========================================
 # 🎨 ESTILOS CSS
@@ -60,25 +54,36 @@ st.markdown("""
             margin-top: 10px;
             border: 1px dashed #00C2FF;
         }
+        /* Disclaimer forzado visualmente (opcional, también va en texto) */
+        .disclaimer-text {
+            font-size: 0.7em;
+            color: #666;
+            margin-top: 10px;
+            border-top: 1px solid #333;
+            padding-top: 5px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# --- GESTIÓN DE ESTADO (LOGIN) ---
-if "usuario_activo" not in st.session_state:
-    st.session_state.usuario_activo = None
+# --- GESTIÓN DE ESTADO ---
+if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
+if "saludo_inicial" not in st.session_state: st.session_state.saludo_inicial = False
 
-# --- PANTALLA DE LOGIN ---
+# ==========================================
+# 🔐 PANTALLA DE LOGIN ZEN (Deseo #2 y #3)
+# ==========================================
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
-    # ---------------------------------------------------------
-    # 🌊 AQUÍ ESTÁ LA ONDA DE COLORES (RECUPERADA) 
-    # ---------------------------------------------------------
+    # --- ANIMACIÓN ONDA ---
     st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=500)
     
-    st.caption("Sistema de Inteligencia Artificial Avanzada")
-    st.info("Introduce tu Código de Acceso Personal.")
+    # --- MÚSICA LOFI (Deseo #2) ---
+    # Reproductor pequeño. La URL es un stream de LoFi libre de derechos.
+    st.audio("https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3", format="audio/mp3", loop=True)
+    st.caption("🎵 Modo Zen: Activado. Relájate antes de consultar.")
     
+    st.info("Introduce tu Código de Acceso Personal.")
     input_code = st.text_input("Código de Tarjeta / Clave:", type="password")
     
     if st.button("Validar Acceso"):
@@ -91,13 +96,13 @@ if not st.session_state.usuario_activo:
                 st.toast(f"✅ Bienvenido, {nombre_cliente}", icon="🎉")
                 st.rerun()
             else:
-                st.error(f"🚫 El código '{codigo_usuario}' no es válido.")
+                st.error(f"🚫 El código no es válido.")
         except Exception as e:
             st.error(f"⚠️ Error: {e}")
     st.stop()
 
 # ==========================================
-# 🚀 ZONA SEGURA
+# 🚀 ZONA SEGURA (APP PRINCIPAL)
 # ==========================================
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
@@ -106,15 +111,47 @@ except Exception:
     st.error("⚠️ Error: No se encontró la API KEY.")
     st.stop()
 
+# --- PREPARACIÓN DE DIRECTORIO CON NUEVOS CAMPOS (Deseo #4 y #5) ---
+# Creamos un texto enriquecido para que la IA sepa dónde están los médicos y si atienden remoto
+if TODOS_LOS_MEDICOS:
+    info_medicos = []
+    for m in TODOS_LOS_MEDICOS:
+        remoto_str = "✅ Atiende Remoto" if m.get('remoto') else "🏠 Solo Presencial"
+        info_medicos.append(f"- {m['nombre']} ({m['especialidad']}) en {m.get('ciudad')}, {m.get('colonia')}. {remoto_str}. Perfil: {m['desc']}")
+    
+    TEXTO_DIRECTORIO = "\n".join(info_medicos)
+    INSTRUCCION_EXTRA = f"""
+    TU MISIÓN COMERCIAL (INTELIGENTE):
+    Tienes acceso a esta red de especialistas:
+    {TEXTO_DIRECTORIO}
+    
+    INSTRUCCIONES DE REFERENCIA:
+    1. Analiza el problema del usuario.
+    2. Si coincide con una especialidad de la lista, RECOMIENDA al médico.
+    3. Si el usuario menciona una ciudad, prioriza al médico de esa ciudad.
+    4. Si el usuario busca atención online, prioriza a los que dicen "Atiende Remoto".
+    """
+else:
+    INSTRUCCION_EXTRA = ""
+
+# --- DISCLAIMER OBLIGATORIO (Deseo #1) ---
+DISCLAIMER_TEXTO = "\n\n⚠️ *AVISO LEGAL: Quantum AI Health proporciona información educativa, no diagnósticos médicos. Consulta siempre a un especialista.*"
+
 SYSTEM_PROMPT = f"""
 Eres QUANTUM, un Asistente Experto en Salud.
-REGLA DE ORO: En TODAS tus respuestas incluye al final: "⚠️ IMPORTANTE: No soy un profesional de la salud. Información educativa. Acuda a un médico."
+Tu objetivo es orientar, calmar y educar.
 {INSTRUCCION_EXTRA}
-Tu tono y profundidad dependen del nivel seleccionado.
+Al final de CADA respuesta, es OBLIGATORIO incluir el aviso legal.
 """
 
 if "mensajes" not in st.session_state:
     st.session_state.mensajes = []
+
+# --- SALUDO AUTOMÁTICO (Deseo #3) ---
+if not st.session_state.saludo_inicial:
+    saludo = f"Hola {st.session_state.usuario_activo}, ¿Cómo estás hoy? 🌿 Dime, ¿Qué te preocupa o qué te trae por aquí? Estoy listo para escucharte."
+    st.session_state.mensajes.append({"role": "assistant", "content": saludo})
+    st.session_state.saludo_inicial = True
 
 def crear_pdf(mensajes):
     pdf = FPDF()
@@ -124,96 +161,100 @@ def crear_pdf(mensajes):
     pdf.ln(5)
     for m in mensajes:
         rol = "USUARIO" if m["role"] == "user" else "QUANTUM"
-        try: texto_limpio = m['content'].encode('latin-1', 'replace').decode('latin-1')
-        except: texto_limpio = m['content']
+        # Limpieza básica de caracteres latinos
+        texto = m['content'].replace('*', '') 
+        try: texto = texto.encode('latin-1', 'replace').decode('latin-1')
+        except: pass
         pdf.set_font("Arial", 'B', 10); pdf.cell(0, 8, txt=f"{rol}:", ln=1)
-        pdf.set_font("Arial", '', 10); pdf.multi_cell(0, 6, txt=texto_limpio); pdf.ln(3)
+        pdf.set_font("Arial", '', 10); pdf.multi_cell(0, 6, txt=texto); pdf.ln(3)
     return pdf.output(dest='S').encode('latin-1')
 
-# --- BARRA LATERAL RECONFIGURADA ---
+# --- BARRA LATERAL (FILTROS Y DIRECTORIO) ---
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #00C2FF;'>🧬 QUANTUM</h2>", unsafe_allow_html=True)
     st.success(f"👤 {st.session_state.usuario_activo}")
     
     if st.button("🔒 Cerrar Sesión"):
-        st.session_state.usuario_activo = None; st.session_state.mensajes = []; st.rerun()
+        st.session_state.usuario_activo = None
+        st.session_state.mensajes = []
+        st.session_state.saludo_inicial = False
+        st.rerun()
     
     st.markdown("---")
     
-    # 1. NIVEL Y ACCIONES (ARRIBA)
-    st.markdown("### ⚙️ Panel de Control")
-    nivel = st.radio("Nivel de Respuesta:", ["Básica", "Media", "Experta"])
+    # 1. PANEL DE CONTROL
+    st.markdown("### ⚙️ Configuración")
+    nivel = st.radio("Nivel:", ["Básica", "Media", "Experta"])
     
-    col_act1, col_act2 = st.columns(2)
-    if col_act1.button("🧹 Limpiar"):
-        st.session_state.mensajes = []; st.rerun()
+    c1, c2 = st.columns(2)
+    if c1.button("Limpiar"):
+        st.session_state.mensajes = []; st.session_state.saludo_inicial = False; st.rerun()
     if st.session_state.mensajes:
         pdf_bytes = crear_pdf(st.session_state.mensajes)
-        col_act2.download_button("📥 PDF", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
+        c2.download_button("PDF", data=pdf_bytes, file_name="Quantum.pdf", mime="application/pdf")
     
     st.markdown("---")
     
-    # 2. ALIADOS MÉDICOS (ABAJO - DOBLE SCROLL)
-    if DIRECTORIO_MEDICOS:
+    # 2. DIRECTORIO MÉDICO (FILTRABLE - Deseo #6)
+    if TODOS_LOS_MEDICOS:
         st.markdown("### 👨‍⚕️ Red de Especialistas")
         
-        if "indice_medico" not in st.session_state: st.session_state.indice_medico = 0
-        if "indice_contacto" not in st.session_state: st.session_state.indice_contacto = 0
+        # Filtro de Ciudad
+        filtro_ciudad = st.selectbox("📍 Filtrar por Ubicación:", ciudades_disponibles)
         
-        total_medicos = len(DIRECTORIO_MEDICOS)
-        medico_actual = DIRECTORIO_MEDICOS[st.session_state.indice_medico % total_medicos]
+        # Aplicar filtro
+        if filtro_ciudad == "Todas las Ubicaciones":
+            medicos_filtrados = TODOS_LOS_MEDICOS
+        else:
+            medicos_filtrados = [m for m in TODOS_LOS_MEDICOS if m.get('ciudad') == filtro_ciudad]
         
-        tipos_contacto = [
-            {"icono": "📞", "label": "Teléfono", "valor": medico_actual.get("telefono", "N/D")},
-            {"icono": "💬", "label": "WhatsApp", "valor": medico_actual.get("whatsapp", "N/D")},
-            {"icono": "✉️", "label": "Email", "valor": medico_actual.get("email", "N/D")},
-            {"icono": "🌐", "label": "Web", "valor": medico_actual.get("web", "N/D")}
-        ]
-        
-        # Tarjeta Fija
-        st.markdown(f"""
-        <div class="medico-card">
-            <strong>{medico_actual['nombre']}</strong><br>
-            <span style="color: #00C2FF; font-weight: bold;">{medico_actual['especialidad']}</span><br>
-            <hr style="border-color: #333; margin: 5px 0;">
-            <small style="color: #bbb;">{medico_actual['desc']}</small>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Scroll de Contacto (Flechas pequeñas)
-        contacto_actual = tipos_contacto[st.session_state.indice_contacto % len(tipos_contacto)]
-        c_prev, c_display, c_next = st.columns([1, 4, 1])
-        
-        with c_prev:
-            if st.button("◀", key="contact_prev"):
-                st.session_state.indice_contacto -= 1; st.rerun()
-        with c_display:
+        if medicos_filtrados:
+            if "indice_medico" not in st.session_state: st.session_state.indice_medico = 0
+            if "indice_contacto" not in st.session_state: st.session_state.indice_contacto = 0
+            
+            total_visible = len(medicos_filtrados)
+            medico_actual = medicos_filtrados[st.session_state.indice_medico % total_visible]
+            
+            # Contactos
+            tipos_contacto = [
+                {"icono": "📞", "label": "Teléfono", "valor": medico_actual.get("telefono", "N/D")},
+                {"icono": "💬", "label": "WhatsApp", "valor": medico_actual.get("whatsapp", "N/D")},
+                {"icono": "✉️", "label": "Email", "valor": medico_actual.get("email", "N/D")},
+                {"icono": "🌐", "label": "Web", "valor": medico_actual.get("web", "N/D")}
+            ]
+            
+            # Tarjeta Visual
             st.markdown(f"""
-            <div style="text-align: center;">
-                <span style="font-size: 0.8em; color: #888;">{contacto_actual['icono']} {contacto_actual['label']}</span><br>
-                <div class="contacto-dato">{contacto_actual['valor']}</div>
+            <div class="medico-card">
+                <strong>{medico_actual['nombre']}</strong><br>
+                <span style="color: #00C2FF; font-weight: bold;">{medico_actual['especialidad']}</span><br>
+                <small>📍 {medico_actual.get('ciudad')}, {medico_actual.get('colonia')}</small><br>
+                <hr style="border-color: #333; margin: 5px 0;">
+                <small style="color: #bbb;">{medico_actual['desc']}</small>
             </div>
             """, unsafe_allow_html=True)
-        with c_next:
-            if st.button("▶", key="contact_next"):
-                st.session_state.indice_contacto += 1; st.rerun()
 
-        st.markdown("---")
-        
-        # Scroll de Médicos (Botones grandes)
-        col_nav1, col_nav2 = st.columns(2)
-        with col_nav1:
-            if st.button("⬅️ Otro Dr."):
-                st.session_state.indice_medico -= 1
-                st.session_state.indice_contacto = 0 # Reset contacto
-                st.rerun()
-        with col_nav2:
-            if st.button("Siguiente ➡️"):
-                st.session_state.indice_medico += 1
-                st.session_state.indice_contacto = 0
-                st.rerun()
-        
-        st.caption(f"Socio { (st.session_state.indice_medico % total_medicos) + 1} de {total_medicos}")
+            # Scroll Contacto
+            contacto_actual = tipos_contacto[st.session_state.indice_contacto % len(tipos_contacto)]
+            c_prev, c_display, c_next = st.columns([1, 4, 1])
+            with c_prev:
+                if st.button("◀", key="cp"): st.session_state.indice_contacto -= 1; st.rerun()
+            with c_display:
+                st.markdown(f"<div style='text-align:center'><span style='color:#888'>{contacto_actual['icono']} {contacto_actual['label']}</span><div class='contacto-dato'>{contacto_actual['valor']}</div></div>", unsafe_allow_html=True)
+            with c_next:
+                if st.button("▶", key="cn"): st.session_state.indice_contacto += 1; st.rerun()
+
+            st.markdown("---")
+            # Navegación Médicos
+            cn1, cn2 = st.columns(2)
+            with cn1:
+                if st.button("⬅️ Otro Dr."): st.session_state.indice_medico -= 1; st.session_state.indice_contacto = 0; st.rerun()
+            with cn2:
+                if st.button("Siguiente ➡️"): st.session_state.indice_medico += 1; st.session_state.indice_contacto = 0; st.rerun()
+            
+            st.caption(f"Mostrando { (st.session_state.indice_medico % total_visible) + 1} de {total_visible}")
+        else:
+            st.info("No hay especialistas en esta ubicación aún.")
 
 # --- CHAT PRINCIPAL ---
 st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
@@ -221,26 +262,26 @@ st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_ht
 for m in st.session_state.mensajes:
     with st.chat_message(m["role"]): st.markdown(m["content"])
 
-prompt = st.chat_input(f"Consultar ({nivel})...")
+prompt = st.chat_input(f"Escribe aquí...")
+
 if prompt:
     st.session_state.mensajes.append({"role": "user", "content": prompt})
     st.chat_message("user").markdown(prompt)
     try:
-        prompt_completo = f"{SYSTEM_PROMPT}\nCONTEXTO: Nivel {nivel}. Pregunta: {prompt}"
+        # Aquí la magia: Prompt con datos de médicos + Disclaimer forzado
+        prompt_completo = f"{SYSTEM_PROMPT}\nCONTEXTO: Nivel {nivel}. Usuario pregunta: {prompt}"
         model = genai.GenerativeModel('gemini-2.5-flash')
-        with st.spinner("Procesando..."):
+        with st.spinner("Analizando..."):
             response = model.generate_content(prompt_completo)
-            texto_ia = response.text
-        st.session_state.mensajes.append({"role": "assistant", "content": texto_ia})
+            # Forzamos el disclaimer SIEMPRE al final de la respuesta generada
+            texto_final = response.text + DISCLAIMER_TEXTO
+        
+        st.session_state.mensajes.append({"role": "assistant", "content": texto_final})
         st.rerun()
     except Exception as e: st.error(f"Error: {e}")
 
 # --- FOOTER ---
 st.markdown("---")
-col_foot1, col_foot2 = st.columns(2)
-with col_foot1:
-    st.markdown("**Quantum AI Health v2.5**")
-    st.caption("© 2026 Todos los derechos reservados.")
-#with col_foot2:
-    #st.markdown("Estadísticas de uso:")
-    #st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
+c_ft1, c_ft2 = st.columns(2)
+with c_ft1: st.markdown("**Quantum AI Health v3.0**\n© 2026 Todos los derechos reservados.")
+#with c_ft2: st.markdown("![Visitas](https://visitor-badge.laobi.icu/badge?page_id=quantum_ai_health_main_access&left_text=Total&right_color=%2300C2FF)")
