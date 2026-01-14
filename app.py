@@ -169,10 +169,25 @@ def crear_pdf(mensajes):
         pdf.set_font("Arial", '', 10); pdf.multi_cell(0, 6, txt=texto); pdf.ln(3)
     return pdf.output(dest='S').encode('latin-1')
 
-# --- BARRA LATERAL (FILTROS Y DIRECTORIO) ---
+# --- CONFIGURACIÓN DE PÁGINA (CON TU NUEVO LOGO) ---
+# Cambia "logo_quantum.png" por el nombre exacto de tu archivo subido
+st.set_page_config(page_title="Quantum AI Health", page_icon="logo_quantum.png", layout="wide")
+
+# ... (El resto del código sigue igual hasta la barra lateral) ...
+
+# --- BARRA LATERAL (CON LOGO VISUAL) ---
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center; color: #00C2FF;'>🧬 QUANTUM</h2>", unsafe_allow_html=True)
+    # Reemplazamos el título de texto por tu IMAGEN OFICIAL
+    # use_container_width=True hace que se ajuste perfecto al ancho
+    try:
+        st.image("logo_quantum.png", use_container_width=True)
+    except:
+        # Si por algo no carga, mostramos el texto como respaldo
+        st.markdown("<h2 style='text-align: center; color: #00C2FF;'>🧬 QUANTUM</h2>", unsafe_allow_html=True)
+
     st.success(f"👤 {st.session_state.usuario_activo}")
+    
+    # ... (El resto de la barra lateral sigue igual) ...
     
     if st.button("🔒 Cerrar Sesión"):
         st.session_state.usuario_activo = None
