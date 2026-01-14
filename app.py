@@ -171,7 +171,7 @@ def crear_pdf(mensajes):
 
 # --- CONFIGURACIÓN DE PÁGINA (CON TU NUEVO LOGO) ---
 # Cambia "logo_quantum.png" por el nombre exacto de tu archivo subido
-st.set_page_config(page_title="Quantum AI Health", page_icon="logo_quantum.png", layout="wide")
+st.set_page_config(page_title="Quantum AI Health", page_icon="Logo_quantum.png", layout="wide")
 
 # ... (El resto del código sigue igual hasta la barra lateral) ...
 
@@ -180,7 +180,7 @@ with st.sidebar:
     # Reemplazamos el título de texto por tu IMAGEN OFICIAL
     # use_container_width=True hace que se ajuste perfecto al ancho
     try:
-        st.image("logo_quantum.png", use_container_width=True)
+        st.image("Logo_quantum.png", use_container_width=True)
     except:
         # Si por algo no carga, mostramos el texto como respaldo
         st.markdown("<h2 style='text-align: center; color: #00C2FF;'>🧬 QUANTUM</h2>", unsafe_allow_html=True)
