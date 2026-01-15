@@ -178,7 +178,7 @@ with st.sidebar:
     st.markdown("### 💼 Únete al Equipo")
     st.caption("¿Eres médico? Recibe pacientes.")
     # CAMBIA ESTE LINK POR TU FORMULARIO REAL:
-    st.link_button("📝 Registro de Especialistas", "https://forms.gle/TU_LINK_AQUI")
+    st.link_button("📝 Registro de Especialistas", "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGCfqt20Ny7i1f-Tk_RSApdEXk0-bDDK_a3vyRcUCcfPIGXHxe2J3MPInrdwJbeBfnLcQoer16uU9y/pub?output=csv")
     
     st.markdown("---")
     st.markdown("### ⚙️ Panel")
