@@ -153,3 +153,13 @@ if prompt := st.chat_input("Escribe tu consulta..."):
         st.session_state.mensajes.append({"role": "assistant", "content": res.text})
         st.rerun()
     except Exception as e: st.error(f"Error: {e}")
+        # --- CONTADOR DE VISITAS (Agrega esto al final del sidebar) ---
+    st.markdown("### 📊 Métricas")
+    # Usamos un servicio de contador gratuito y fiable (Hits)
+    # He configurado los colores para que coincidan con tu tema Quantum (Cyan #00C2FF)
+    st.markdown("""
+    <div style="text-align: center;">
+        <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-ai.com&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITAS&edge_flat=false"/>
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption("Monitor de Tráfico en Tiempo Real")
