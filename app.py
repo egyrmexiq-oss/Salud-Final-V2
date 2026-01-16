@@ -109,6 +109,11 @@ with st.sidebar:
     
     # URL del contador (Vinculada a tu dominio .com)
     # Nota: El contador empieza a contar desde que lo pones
+# --- CONTADOR DE VISITAS (Versión Robusta) ---
+    st.markdown("### 📊 Métricas")
+    
+    # URL del contador (Vinculada a tu dominio .com)
+    # Nota: El contador empieza a contar desde que lo pones
     contador_url = "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-ai.com&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITAS&edge_flat=false"
     
     # Renderizar imagen nativa
