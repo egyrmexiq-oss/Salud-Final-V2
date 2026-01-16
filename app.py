@@ -114,9 +114,6 @@ with st.sidebar:
     
     # Renderizar imagen nativa
     st.image(contador_url, caption="Tráfico en Tiempo Real", width=160)
-    
-    # Renderizar imagen nativa
-    st.image(contador_url, caption="Tráfico en Tiempo Real", width=160)
 
     # 2. DIRECTORIO
     st.markdown("---")
