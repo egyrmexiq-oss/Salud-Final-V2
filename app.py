@@ -104,18 +104,15 @@ with st.sidebar:
     
     if st.button("🗑️ Limpiar Chat"): st.session_state.mensajes = []; st.rerun()
     if st.button("🔒 Salir"): st.session_state.usuario_activo = None; st.rerun()
-   # --- CONTADOR DE VISITAS (Versión Robusta) ---
-# --- CONTADOR DE VISITAS V2 (Nuevo Proveedor) ---
+   # --- CONTADOR DE VISITAS V3 (Centrado y Estilizado) ---
+    st.markdown("---") # Una línea divisoria extra para limpiar visualmente
     st.markdown("### 📊 Métricas")
     
-    # Usamos api.visitorbadge.io que es mucho más estable
-    # Hemos configurado el color Cyan (#00C2FF) para que combine con Quantum
     st.markdown("""
-    <div style="text-align: center;">
-        <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=VISITAS&countColor=%2300C2FF&style=flat" />
+    <div style="display: flex; justify-content: center; margin-top: 15px; margin-bottom: 20px;">
+        <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=VISITAS&countColor=%2300C2FF&style=flat" style="border-radius: 4px; box-shadow: 0 0 10px rgba(0, 194, 255, 0.2);" />
     </div>
     """, unsafe_allow_html=True)
-
     # 2. DIRECTORIO
     st.markdown("---")
     st.markdown("### 👨‍⚕️ Especialistas")
