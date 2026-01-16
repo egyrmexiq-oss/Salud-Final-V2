@@ -15,7 +15,7 @@ st.set_page_config(page_title="Quantum AI Health", page_icon="Logo_quantum.png",
 URL_GOOGLE_SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1sLchuJZ-P3CrCStgYq__q3dTqFUBig-WaDquCAcG4xUmbVtbBywII7tv5URMQC9gUb1foG5kyeIi/pub?gid=1579037376&single=true&output=csv"
 
 # 2. ⚠️ AQUÍ PEGA EL ENLACE DEL FORMULARIO (El que sacas del botón "Enviar" 🔗):
-URL_FORMULARIO = "https://docs.google.com/spreadsheets/d/1XxikJRz-PJNlqArocf1XAo4jNOYBteNKdIgRWHedf-k/edit?resourcekey=&gid=1579037376#gid=1579037376" 
+URL_FORMULARIO = "https://docs.google.com/forms/d/e/1FAIpQLSdvLcp8q9kbJ2VAkqdSHFBreD3yCqimuXRt-OuOykJCoMj2Tg/viewform?usp=publish-editor" 
 # ^^^ REEMPLAZA ESTO CON TU LINK DE FORMS (ej: https://forms.gle/xyz...) ^^^
 
 @st.cache_data(ttl=60)
