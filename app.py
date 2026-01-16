@@ -173,7 +173,7 @@ else:
     5. SIEMPRE prioriza la seguridad del paciente.
     """
 else:
-    ciudades_disponibles = ["Mundo"]
+    ciudades_disponibles = ["Ciudad"]
     INSTRUCCION_EXTRA = "Actúa como asistente médico general. No tienes médicos en tu red por ahora."
         
         if lista:
