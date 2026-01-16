@@ -50,21 +50,21 @@ def cargar_medicos():
 TODOS_LOS_MEDICOS = cargar_medicos()
 
 # --- PREPARACIÓN IA ---
-# --- PREPARACIÓN DE CONTEXTO (Modo Triaje Inteligente) ---
+# --- PREPARACIÓN DE CONTEXTO (Modo Triaje) ---
 if TODOS_LOS_MEDICOS:
-    ciudades_disponibles = sorted(list(set(str(m.get('ciudad', 'General')).title() for m in TODOS_LOS_MEDICOS)))
-    ciudades_disponibles.insert(0, "Todas las Ubicaciones")
+    # CORREGIDO: Usamos "ciudades" para que coincida con el menú de abajo
+    ciudades = sorted(list(set(str(m.get('ciudad', 'General')).title() for m in TODOS_LOS_MEDICOS)))
+    ciudades.insert(0, "Todas las Ubicaciones")
     
-    # Formateamos la lista para que la IA entienda quién es quién
+    # Creamos la "Ficha Técnica" para la IA
     info_medicos = []
     for m in TODOS_LOS_MEDICOS:
-        # Creamos una ficha técnica clara para la IA
         ficha = f"ID: {m.get('nombre')} | Especialidad: {m.get('especialidad')} | Ubicación: {m.get('ciudad')} | Experiencia: {m.get('descripcion')}"
         info_medicos.append(ficha)
     
     TEXTO_DIRECTORIO = "\n".join(info_medicos)
     
-    # 🧠 AQUÍ ESTÁ EL CEREBRO DEL TRIAGE
+    # CEREBRO DEL TRIAGE
     INSTRUCCION_EXTRA = f"""
     ACTÚA COMO UN ASISTENTE DE TRIAGE MÉDICO EXPERTO.
     Tu misión es escuchar los síntomas del usuario y conectarlo con el especialista MÁS ADECUADO de esta lista exclusiva:
@@ -74,12 +74,12 @@ if TODOS_LOS_MEDICOS:
     REGLAS DE OPERACIÓN:
     1. ANALIZA los síntomas (ej: "dolor de pecho" -> Cardiología).
     2. BUSCA en la lista de arriba si tenemos un especialista que cubra esa necesidad.
-    3. SI LO ENCUENTRAS: Recomiéndalo con entusiasmo diciendo: "Basado en tus síntomas, la mejor opción en nuestra red es el Dr. [Nombre]...".
-    4. SI NO LO ENCUENTRAS: Di "Para ese síntoma necesitas un [Especialidad], pero por ahora no tenemos uno en nuestra red. Te sugiero acudir a un Médico General para valoración inicial".
-    5. SIEMPRE prioriza la seguridad del paciente.
+    3. SI LO ENCUENTRAS: Recomiéndalo diciendo: "Basado en tus síntomas, la mejor opción en nuestra red es el Dr. [Nombre]...".
+    4. SI NO LO ENCUENTRAS: Di "Para ese síntoma necesitas un [Especialidad], pero por ahora no tenemos uno en nuestra red. Te sugiero acudir a un Médico General".
+    5. SIEMPRE prioriza la seguridad.
     """
 else:
-    ciudades_disponibles = ["Mundo"]
+    ciudades = ["Mundo"]
     INSTRUCCION_EXTRA = "Actúa como asistente médico general. No tienes médicos en tu red por ahora."
 
 # --- ESTILOS CSS ---
