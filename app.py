@@ -104,16 +104,15 @@ with st.sidebar:
     
     if st.button("🗑️ Limpiar Chat"): st.session_state.mensajes = []; st.rerun()
     if st.button("🔒 Salir"): st.session_state.usuario_activo = None; st.rerun()
-                # --- CONTADOR DE VISITAS (Agrega esto al final del sidebar) ---
+   # --- CONTADOR DE VISITAS (Versión Robusta) ---
     st.markdown("### 📊 Métricas")
-    # Usamos un servicio de contador gratuito y fiable (Hits)
-    # He configurado los colores para que coincidan con tu tema Quantum (Cyan #00C2FF)
-    st.markdown("""
-    <div style="text-align: center;">
-        <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-ai.com&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITAS&edge_flat=false"/>
-    </div>
-    """, unsafe_allow_html=True)
-    st.caption("Monitor de Tráfico en Tiempo Real")
+    
+    # URL del contador (Vinculada a tu dominio .com)
+    # Nota: El contador empieza a contar desde que lo pones
+    contador_url = "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fquantum-health-ai.com&count_bg=%2300C2FF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITAS&edge_flat=false"
+    
+    # Renderizar imagen nativa
+    st.image(contador_url, caption="Tráfico en Tiempo Real", width=160)
 
     # 2. DIRECTORIO
     st.markdown("---")
