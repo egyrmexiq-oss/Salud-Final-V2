@@ -104,13 +104,14 @@ with st.sidebar:
     
     if st.button("🗑️ Limpiar Chat"): st.session_state.mensajes = []; st.rerun()
     if st.button("🔒 Salir"): st.session_state.usuario_activo = None; st.rerun()
-   # --- CONTADOR DE VISITAS V3 (Centrado y Estilizado) ---
-    st.markdown("---") # Una línea divisoria extra para limpiar visualmente
-    st.markdown("### 📊 Métricas")
+  # --- CONTADOR COMPACTO (En una sola línea) ---
+    st.markdown("---")
     
+    # Usamos HTML para poner el texto y la imagen lado a lado (Flexbox)
     st.markdown("""
-    <div style="display: flex; justify-content: center; margin-top: 15px; margin-bottom: 20px;">
-        <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=VISITAS&countColor=%2300C2FF&style=flat" style="border-radius: 4px; box-shadow: 0 0 10px rgba(0, 194, 255, 0.2);" />
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+        <span style="color: white; font-weight: bold; font-size: 1.1em;">📊 Visitas:</span>
+        <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=&countColor=%2300C2FF&style=flat&labelStyle=none" style="height: 25px; border-radius: 3px;" />
     </div>
     """, unsafe_allow_html=True)
     # 2. DIRECTORIO
