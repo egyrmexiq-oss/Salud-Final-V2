@@ -132,8 +132,17 @@ with st.sidebar:
             if "idx" not in st.session_state: st.session_state.idx = 0
             m = lista[st.session_state.idx % len(lista)]
             
-            # Tarjeta del Médico
-            st.markdown(f"""
-            <div style="background-color: #262730; padding: 15px; border-radius: 10px; border: 1px solid #444;">
-                <h4 style="margin:0; color:white;">{m.get('nombre','Dr.')}</h4>
-                <div style="color:#00C2FF; font-weight:bold;">{m.get('especial
+            # --- AQUÍ EMPIEZA LA TARJETA CORREGIDA ---
+            # Uso paréntesis () para agrupar el texto largo de forma segura
+            tarjeta_html = (
+                f'<div style="background-color: #262730; padding: 15px; border-radius: 10px; border: 1px solid #444;">'
+                f'<h4 style="margin:0; color:white;">{m.get("nombre","Dr.")}</h4>'
+                f'<div style="color:#00C2FF; font-weight:bold;">{m.get("especialidad")}</div>'
+                f'<small style="color:#bbb;">{m.get("ciudad")}</small>'
+                f'<hr style="margin: 5px 0; border-color: #444;">'
+                f'<div style="font-size: 0.9em;">📞 {m.get("telefono","--")}</div>'
+                f'</div>'
+            )
+            
+            st.markdown(tarjeta_html, unsafe_allow_html=True)
+            # --- AQUÍ TERMINA LA TARJETA CORREGIDA ---
