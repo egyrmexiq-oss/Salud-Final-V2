@@ -9,12 +9,11 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Quantum AI Health", page_icon="Logo_quantum.png", layout="wide")
 
 # ==========================================
-# 🔐 1. LOGIN DE SEGURIDAD (EL PORTERO)
+# 🔐 1. LOGIN DE SEGURIDAD
 # ==========================================
 if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
 
 if not st.session_state.usuario_activo:
-    # Pantalla de Login
     st.markdown("## 🔐 Quantum Access")
     try: st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=400)
     except: pass
@@ -25,10 +24,10 @@ if not st.session_state.usuario_activo:
             st.session_state.usuario_activo = st.secrets["access_keys"][c.strip()]
             st.rerun()
         else: st.error("Acceso Denegado")
-    st.stop() # 🛑 SI NO HAY CLAVE, AQUÍ SE DETIENE TODO
+    st.stop()
 
 # ==========================================
-# 💎 2. CARGA DE DATOS (SOLO SI YA ENTRÓ)
+# 💎 2. CARGA DE DATOS
 # ==========================================
 try: genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 except: st.error("Falta API Key")
@@ -66,7 +65,7 @@ if TODOS_LOS_MEDICOS:
     TEXTO_DIRECTORIO = "\n".join(info_medicos)
     
     INSTRUCCION_EXTRA = f"""
-    ERES "QUANTUM HEALTH AI", UN CONSULTOR DE SALUD.
+    ERES "QUANTUM HEALTH AI", CONSULTOR DE SALUD.
     MODO 1: EDUCACIÓN (Preguntas generales).
     MODO 2: TRIAGE (Si hay síntomas).
     - Analiza el síntoma.
@@ -81,22 +80,20 @@ else:
 # 📱 3. BARRA LATERAL (SIDEBAR)
 # ==========================================
 with st.sidebar:
-    # A) LOGO
     try: st.image("Logo_quantum.png", use_container_width=True)
     except: st.header("QUANTUM")
     
     st.success(f"Hola, {st.session_state.usuario_activo}")
     
-    # B) CONTADOR DE VISITAS (Lo subí para que se vea mejor)
+    # Contador de Visitas
     st.markdown("---")
     st.markdown("""
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #262730; padding: 10px; border-radius: 5px;">
+    <div style="background-color: #262730; padding: 10px; border-radius: 5px; text-align: center;">
         <span style="color: white; font-weight: bold;">📊 Visitas:</span>
         <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=&countColor=%2300C2FF&style=flat&labelStyle=none" style="height: 20px;" />
     </div>
     """, unsafe_allow_html=True)
     
-    # C) CONFIGURACIÓN
     st.markdown("---")
     st.markdown("### ⚙️ Ajustes")
     nivel = st.radio("Nivel de Respuesta:", ["Básica", "Media", "Experta"])
@@ -104,7 +101,6 @@ with st.sidebar:
     if st.button("🗑️ Limpiar Chat"): st.session_state.mensajes = []; st.rerun()
     if st.button("🔒 Salir"): st.session_state.usuario_activo = None; st.rerun()
 
-    # D) DIRECTORIO MÉDICO
     st.markdown("---")
     st.markdown("### 👨‍⚕️ Directorio")
     if TODOS_LOS_MEDICOS:
@@ -115,8 +111,8 @@ with st.sidebar:
             if "idx" not in st.session_state: st.session_state.idx = 0
             m = lista[st.session_state.idx % len(lista)]
             
-            # Tarjeta HTML Segura
-            tarjeta_html = (
+            # Tarjeta HTML
+            tarjeta = (
                 f'<div style="background-color: #262730; padding: 15px; border-radius: 10px; border: 1px solid #444; margin-bottom: 10px;">'
                 f'<h4 style="margin:0; color:white;">{m.get("nombre","Dr.")}</h4>'
                 f'<div style="color:#00C2FF; font-weight:bold;">{m.get("especialidad")}</div>'
@@ -124,34 +120,29 @@ with st.sidebar:
                 f'<div style="font-size: 0.9em; margin-top: 5px;">📞 {m.get("telefono","--")}</div>'
                 f'</div>'
             )
-            st.markdown(tarjeta_html, unsafe_allow_html=True)
+            st.markdown(tarjeta, unsafe_allow_html=True)
             
             c1, c2 = st.columns(2)
             if c1.button("⬅️"): st.session_state.idx -= 1; st.rerun()
             if c2.button("➡️"): st.session_state.idx += 1; st.rerun()
         else: st.info("Sin resultados.")
 
-    # E) REGISTRO
     st.markdown("---")
     st.link_button("📝 Regístrate como Médico", URL_FORMULARIO)
 
 # ==========================================
-# 💬 4. CHAT PRINCIPAL (FUERA DEL SIDEBAR)
+# 💬 4. CHAT PRINCIPAL
 # ==========================================
 
-# Título Principal
 st.markdown('<h1 style="text-align: center; color: #00C2FF;">Quantum AI Health</h1>', unsafe_allow_html=True)
-st.caption("Tu Asistente Médico Inteligente - " + nivel)
+st.caption(f"Asistente Médico Inteligente - Nivel {nivel}")
 
-# Historial de Mensajes
 if "mensajes" not in st.session_state: 
-    if "mensajes" not in st.session_state: 
     st.session_state.mensajes = [{"role": "assistant", "content": "Hola, soy Quantum. ¿Cómo te sientes hoy?"}]
 
 for msg in st.session_state.mensajes:
     with st.chat_message(msg["role"]): st.markdown(msg["content"])
 
-# ⚠️ ESTA PARTE ES LA CLAVE: EL INPUT DEBE ESTAR AL FINAL Y SIN TABULACIÓN
 if prompt := st.chat_input("Escribe tus síntomas o dudas aquí..."):
     st.session_state.mensajes.append({"role": "user", "content": prompt})
     st.chat_message("user").markdown(prompt)
@@ -162,7 +153,3 @@ if prompt := st.chat_input("Escribe tus síntomas o dudas aquí..."):
         st.session_state.mensajes.append({"role": "assistant", "content": res.text})
         st.rerun()
     except Exception as e: st.error(f"Error: {e}")
-
-# Historial de Mensajes
-if "mensajes" not in st.session_state: 
-    st.session_state.mensajes = [{"role": "assistant", "content": "Hola, soy Quantum. ¿Cómo
