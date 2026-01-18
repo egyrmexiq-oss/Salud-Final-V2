@@ -9,6 +9,7 @@ import streamlit.components.v1 as components
 # ==========================================
 # 🔐 1. LOGIN DE SEGURIDAD
 # ==========================================
+st.set_page_config(page_title="Quantum AI Health", page_icon="Logo_quantum.png", layout="wide")
 if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
 
 if not st.session_state.usuario_activo:
