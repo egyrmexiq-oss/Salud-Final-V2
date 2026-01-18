@@ -149,6 +149,10 @@ with st.sidebar:
     st.markdown("---")
     
     # Usamos HTML para poner el texto y la imagen lado a lado (Flexbox)
+   # --- CONTADOR DE VISITAS (Corregido) ---
+    st.markdown("---")
+    
+    # Fíjate que todo el HTML está dentro de las triples comillas """
     st.markdown("""
     <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
         <span style="color: white; font-weight: bold; font-size: 1.1em;">📊 Visitas:</span>
