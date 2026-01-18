@@ -6,8 +6,6 @@ import streamlit.components.v1 as components
 # ==========================================
 # ⚙️ CONFIGURACIÓN DE PÁGINA
 # ==========================================
-st.set_page_config(page_title="Quantum AI Health", page_icon="Logo_quantum.png", layout="wide")
-
 # ==========================================
 # 🔐 1. LOGIN DE SEGURIDAD
 # ==========================================
@@ -15,8 +13,13 @@ if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = N
 
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
+    
+    # Animación 3D
     try: st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=400)
     except: pass
+    
+    # 🎵 AQUÍ ESTÁ LA MÚSICA DE REGRESO 👇
+    st.audio("https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3", loop=True, autoplay=True)
     
     c = st.text_input("Clave de Acceso:", type="password")
     if st.button("Entrar"):
