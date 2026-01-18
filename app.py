@@ -155,11 +155,11 @@ if prompt := st.chat_input("Escribe tus síntomas o dudas aquí..."):
         st.rerun()
     except Exception as e: st.error(f"Error: {e}")
         # --- CÓDIGO TEMPORAL DE DIAGNÓSTICO ---
-if st.button("🕵️ Ver Modelos Disponibles"):
-    try:
-        st.write("Consultando a Google...")
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                st.code(f"Nombre: {m.name}")
-    except Exception as e:
-        st.error(f"Error: {e}")
+#if st.button("🕵️ Ver Modelos Disponibles"):
+    #try:
+        #st.write("Consultando a Google...")
+        #for m in genai.list_models():
+            #if 'generateContent' in m.supported_generation_methods:
+                #st.code(f"Nombre: {m.name}")
+    #except Exception as e:
+        #st.error(f"Error: {e}")
