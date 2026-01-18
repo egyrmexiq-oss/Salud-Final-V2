@@ -149,7 +149,8 @@ if prompt := st.chat_input("Escribe tus síntomas o dudas aquí..."):
     
     try:
         full_prompt = f"Eres Quantum (Nivel: {nivel}). {INSTRUCCION_EXTRA}. Usuario: {prompt}."
-        res = genai.GenerativeModel('gemini-1.5-flash').generate_content(full_prompt)
+        # Usamos el modelo que TÚ tienes disponible según tu lista
+res = genai.GenerativeModel('gemini-2.5-flash').generate_content(full_prompt)
         st.session_state.mensajes.append({"role": "assistant", "content": res.text})
         st.rerun()
     except Exception as e: st.error(f"Error: {e}")
