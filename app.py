@@ -145,4 +145,24 @@ st.caption("Tu Asistente Médico Inteligente - " + nivel)
 
 # Historial de Mensajes
 if "mensajes" not in st.session_state: 
+    if "mensajes" not in st.session_state: 
+    st.session_state.mensajes = [{"role": "assistant", "content": "Hola, soy Quantum. ¿Cómo te sientes hoy?"}]
+
+for msg in st.session_state.mensajes:
+    with st.chat_message(msg["role"]): st.markdown(msg["content"])
+
+# ⚠️ ESTA PARTE ES LA CLAVE: EL INPUT DEBE ESTAR AL FINAL Y SIN TABULACIÓN
+if prompt := st.chat_input("Escribe tus síntomas o dudas aquí..."):
+    st.session_state.mensajes.append({"role": "user", "content": prompt})
+    st.chat_message("user").markdown(prompt)
+    
+    try:
+        full_prompt = f"Eres Quantum (Nivel: {nivel}). {INSTRUCCION_EXTRA}. Usuario: {prompt}."
+        res = genai.GenerativeModel('gemini-1.5-flash').generate_content(full_prompt)
+        st.session_state.mensajes.append({"role": "assistant", "content": res.text})
+        st.rerun()
+    except Exception as e: st.error(f"Error: {e}")
+
+# Historial de Mensajes
+if "mensajes" not in st.session_state: 
     st.session_state.mensajes = [{"role": "assistant", "content": "Hola, soy Quantum. ¿Cómo
