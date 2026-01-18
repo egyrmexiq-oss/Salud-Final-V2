@@ -85,8 +85,11 @@ else:
     INSTRUCCION_EXTRA = "Actúa como asistente médico general. No tienes médicos en tu red por ahora."
 
 # --- BARRA LATERAL (SIDEBAR) ---
+# --- BARRA LATERAL (SIDEBAR) ---
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/3063/3063176.png", width=100)
+    # AQUÍ ESTÁ TU LOGO DE VUELTA 👇
+    st.image("Logo_quantum.png", use_container_width=True) 
+    
     st.title("Quantum Health")
     st.markdown("---")
     
