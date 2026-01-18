@@ -50,13 +50,12 @@ def cargar_medicos():
 TODOS_LOS_MEDICOS = cargar_medicos()
 
 # --- PREPARACIÓN IA ---
-# --- PREPARACIÓN DE CONTEXTO (Modo Triaje) ---
+# --- PREPARACIÓN DE CONTEXTO (LÓGICA CORREGIDA) ---
 if TODOS_LOS_MEDICOS:
-    # CORREGIDO: Usamos "ciudades" para que coincida con el menú de abajo
     ciudades = sorted(list(set(str(m.get('ciudad', 'General')).title() for m in TODOS_LOS_MEDICOS)))
     ciudades.insert(0, "Todas las Ubicaciones")
     
-    # Creamos la "Ficha Técnica" para la IA
+    # Creamos la ficha técnica
     info_medicos = []
     for m in TODOS_LOS_MEDICOS:
         ficha = f"ID: {m.get('nombre')} | Especialidad: {m.get('especialidad')} | Ubicación: {m.get('ciudad')} | Experiencia: {m.get('descripcion')}"
@@ -64,51 +63,58 @@ if TODOS_LOS_MEDICOS:
     
     TEXTO_DIRECTORIO = "\n".join(info_medicos)
     
-    # CEREBRO DEL TRIAGE
-   # --- CEREBRO HÍBRIDO (CONSULTOR + TRIAGE) ---
+    # CEREBRO HÍBRIDO (El que definimos hace un momento)
     INSTRUCCION_EXTRA = f"""
     ERES "QUANTUM HEALTH AI", UN CONSULTOR EXPERTO EN SALUD.
     
     TIENES 2 MODOS DE OPERACIÓN (DETECTA CUÁL USAR):
 
     MODO 1: CURIOSIDAD Y EDUCACIÓN 🧠
-    Si el usuario hace preguntas generales (ej: "¿Qué es el colesterol?", "¿Por qué el cielo es azul?", "Dame tips de dieta"), responde con la calidad y el nivel de detalle que el usuario configuró. NO recomiendes doctores a menos que sea pertinente. Tu objetivo aquí es educar.
+    Si el usuario hace preguntas generales (ej: "¿Qué es el colesterol?", "¿Por qué el cielo es azul?"), responde con calidad educativa. NO recomiendes doctores a menos que sea pertinente.
 
     MODO 2: TRIAGE Y SÍNTOMAS 🚑
-    Si el usuario describe un DOLOR, SÍNTOMA o MALESTAR (ej: "Me duele la cabeza", "Tengo fiebre", "Me caí"), ACTIVA EL PROTOCOLO DE TRIAGE:
-    1. Analiza qué especialista necesita.
-    2. Busca EXCLUSIVAMENTE en esta lista de nuestra red:
-    
+    Si el usuario describe un DOLOR o SÍNTOMA (ej: "Me duele la cabeza"), ACTIVA EL PROTOCOLO:
+    1. Analiza qué especialidad necesita.
+    2. Busca EXCLUSIVAMENTE en esta lista:
     {TEXTO_DIRECTORIO}
-    
-    3. SI HAY COINCIDENCIA: Recomienda al doctor diciendo: "Para ese síntoma, te recomiendo agendar con el Dr. [Nombre], que es especialista en [Especialidad] dentro de nuestra red".
-    4. SI NO HAY COINCIDENCIA: Sugiere visitar a un Médico General.
-
-    IMPORTANTE: Siempre mantén un tono profesional, empático y seguro.
-    """
-    
-    {TEXTO_DIRECTORIO}
-    
-    REGLAS DE OPERACIÓN:
-    1. ANALIZA los síntomas (ej: "dolor de pecho" -> Cardiología).
-    2. BUSCA en la lista de arriba si tenemos un especialista que cubra esa necesidad.
-    3. SI LO ENCUENTRAS: Recomiéndalo diciendo: "Basado en tus síntomas, la mejor opción en nuestra red es el Dr. [Nombre]...".
-    4. SI NO LO ENCUENTRAS: Di "Para ese síntoma necesitas un [Especialidad], pero por ahora no tenemos uno en nuestra red. Te sugiero acudir a un Médico General".
-    5. SIEMPRE prioriza la seguridad.
+    3. SI HAY COINCIDENCIA: Recomienda al doctor diciendo: "Te recomiendo al Dr. [Nombre]...".
+    4. SI NO HAY COINCIDENCIA: Sugiere Médico General.
     """
 else:
     ciudades = ["Mundo"]
     INSTRUCCION_EXTRA = "Actúa como asistente médico general. No tienes médicos en tu red por ahora."
 
-# --- ESTILOS CSS ---
-st.markdown("""
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
-        .titulo-quantum { font-family: 'Orbitron', sans-serif !important; color: #00C2FF !important; text-align: center; font-size: 2.5em; }
-        .medico-card { background-color: #111; border: 1px solid #00C2FF; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px; }
-        .cedula-badge { background: #222; color: #aaa; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; border: 1px solid #555; display: inline-block; }
-    </style>
-""", unsafe_allow_html=True)
+# --- BARRA LATERAL (SIDEBAR) ---
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/3063/3063176.png", width=100)
+    st.title("Quantum Health")
+    st.markdown("---")
+    
+    # 1. NAVEGACIÓN
+    menu = st.radio("Navegación", ["🏠 Inicio", "👨‍⚕️ Directorio", "🤖 Asistente IA"])
+    
+    # 2. FILTROS
+    st.markdown("---")
+    st.subheader("📍 Ubicación")
+    ciudad_filtro = st.selectbox("Selecciona tu ciudad:", ciudades)
+    
+    # BOTÓN DE REGISTRO
+    st.markdown("---")
+    st.markdown("### ¿Eres Especialista?")
+    st.link_button("📝 Regístrate Aquí", URL_FORMULARIO)
+
+    # 3. CONTROLES Y CONTADOR
+    st.markdown("---")
+    if st.button("Limpiar Chat"): st.session_state.mensajes = []; st.rerun()
+    
+    # CONTADOR DE VISITAS (Aquí estaba el error, ahora está protegido)
+    st.markdown("### 📊 Métricas")
+    st.markdown("""
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+        <span style="color: white; font-weight: bold; font-size: 1.1em;">Visitas:</span>
+        <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=&countColor=%2300C2FF&style=flat&labelStyle=none" style="height: 25px; border-radius: 3px;" />
+    </div>
+    """, unsafe_allow_html=True)
 
 # --- LOGIN ---
 if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
@@ -159,6 +165,7 @@ with st.sidebar:
         <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=&countColor=%2300C2FF&style=flat&labelStyle=none" style="height: 25px; border-radius: 3px;" />
     </div>
     """, unsafe_allow_html=True)
+    
     # 2. DIRECTORIO
     st.markdown("---")
     st.markdown("### 👨‍⚕️ Especialistas")
