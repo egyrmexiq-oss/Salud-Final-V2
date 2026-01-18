@@ -8,15 +8,32 @@ import pandas as pd
 st.set_page_config(page_title="Quantum AI Health", page_icon="Logo_quantum.png", layout="wide")
 
 # ==========================================
-# 💎 VARIABLES DE CONEXIÓN
+# 🔐 1. LOGIN (EL PORTERO VA PRIMERO)
+# ==========================================
+if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
+
+if not st.session_state.usuario_activo:
+    st.markdown("## 🔐 Quantum Access")
+    try: st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=400)
+    except: pass
+    
+    # Música de fondo (Opcional)
+    st.audio("https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3", loop=True)
+    
+    c = st.text_input("Clave de Acceso:", type="password")
+    if st.button("Entrar"):
+        if c.strip() in st.secrets["access_keys"]:
+            st.session_state.usuario_activo = st.secrets["access_keys"][c.strip()]
+            st.rerun()
+        else: st.error("Acceso Denegado")
+    st.stop() # 🛑 AQUÍ SE DETIENE TODO SI NO HAY LOGIN
+
+# ==========================================
+# 💎 2. VARIABLES Y CONEXIÓN (SOLO SI YA ENTRÓ)
 # ==========================================
 
-# 1. ESTE ES EL ENLACE DE DATOS (EL CSV) - NO LO TOQUES, YA ESTÁ BIEN:
 URL_GOOGLE_SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1sLchuJZ-P3CrCStgYq__q3dTqFUBig-WaDquCAcG4xUmbVtbBywII7tv5URMQC9gUb1foG5kyeIi/pub?gid=1579037376&single=true&output=csv"
-
-# 2. ⚠️ AQUÍ PEGA EL ENLACE DEL FORMULARIO (El que sacas del botón "Enviar" 🔗):
-URL_FORMULARIO = "https://docs.google.com/forms/d/e/1FAIpQLSdvLcp8q9kbJ2VAkqdSHFBreD3yCqimuXRt-OuOykJCoMj2Tg/viewform?usp=publish-editor" 
-# ^^^ REEMPLAZA ESTO CON TU LINK DE FORMS (ej: https://forms.gle/xyz...) ^^^
+URL_FORMULARIO = "https://docs.google.com/forms/d/e/1FAIpQLSdvLcp8q9kbJ2VAkqdSHFBreD3yCqimuXRt-OuOykJCoMj2Tg/viewform?usp=publish-editor"
 
 @st.cache_data(ttl=60)
 def cargar_medicos():
@@ -24,7 +41,6 @@ def cargar_medicos():
         df = pd.read_csv(URL_GOOGLE_SHEET)
         df.columns = [c.strip().lower() for c in df.columns]
         
-        # Mapeo para corregir nombres de columnas
         mapa = {}
         for col in df.columns:
             if "nombre" in col: mapa[col] = "nombre"
@@ -49,13 +65,11 @@ def cargar_medicos():
 
 TODOS_LOS_MEDICOS = cargar_medicos()
 
-# --- PREPARACIÓN IA ---
-# --- PREPARACIÓN DE CONTEXTO (LÓGICA CORREGIDA) ---
+# --- PREPARACIÓN DE CONTEXTO E IA ---
 if TODOS_LOS_MEDICOS:
     ciudades = sorted(list(set(str(m.get('ciudad', 'General')).title() for m in TODOS_LOS_MEDICOS)))
     ciudades.insert(0, "Todas las Ubicaciones")
     
-    # Creamos la ficha técnica
     info_medicos = []
     for m in TODOS_LOS_MEDICOS:
         ficha = f"ID: {m.get('nombre')} | Especialidad: {m.get('especialidad')} | Ubicación: {m.get('ciudad')} | Experiencia: {m.get('descripcion')}"
@@ -63,7 +77,7 @@ if TODOS_LOS_MEDICOS:
     
     TEXTO_DIRECTORIO = "\n".join(info_medicos)
     
-    # CEREBRO HÍBRIDO (El que definimos hace un momento)
+    # CEREBRO HÍBRIDO (El bueno)
     INSTRUCCION_EXTRA = f"""
     ERES "QUANTUM HEALTH AI", UN CONSULTOR EXPERTO EN SALUD.
     
@@ -74,7 +88,7 @@ if TODOS_LOS_MEDICOS:
 
     MODO 2: TRIAGE Y SÍNTOMAS 🚑
     Si el usuario describe un DOLOR o SÍNTOMA (ej: "Me duele la cabeza"), ACTIVA EL PROTOCOLO:
-    1. Analiza qué especialidad necesita.
+    1. Analiza qué especialista necesita.
     2. Busca EXCLUSIVAMENTE en esta lista:
     {TEXTO_DIRECTORIO}
     3. SI HAY COINCIDENCIA: Recomienda al doctor diciendo: "Te recomiendo al Dr. [Nombre]...".
@@ -84,136 +98,42 @@ else:
     ciudades = ["Mundo"]
     INSTRUCCION_EXTRA = "Actúa como asistente médico general. No tienes médicos en tu red por ahora."
 
-# --- BARRA LATERAL (SIDEBAR) ---
-# --- BARRA LATERAL (SIDEBAR) ---
-with st.sidebar:
-    # AQUÍ ESTÁ TU LOGO DE VUELTA 👇
-    st.image("Logo_quantum.png", use_container_width=True) 
-    
-    st.title("Quantum Health")
-    st.markdown("---")
-    
-    # 1. NAVEGACIÓN
-    menu = st.radio("Navegación", ["🏠 Inicio", "👨‍⚕️ Directorio", "🤖 Asistente IA"])
-    
-    # 2. FILTROS
-    st.markdown("---")
-    st.subheader("📍 Ubicación")
-    ciudad_filtro = st.selectbox("Selecciona tu ciudad:", ciudades)
-    
-    # BOTÓN DE REGISTRO
-    st.markdown("---")
-    st.markdown("### ¿Eres Especialista?")
-    st.link_button("📝 Regístrate Aquí", URL_FORMULARIO)
+# ==========================================
+# 🖥️ 3. INTERFAZ GRÁFICA (APP)
+# ==========================================
 
-    # 3. CONTROLES Y CONTADOR
-    st.markdown("---")
-    if st.button("Limpiar Chat"): st.session_state.mensajes = []; st.rerun()
-    
-    # CONTADOR DE VISITAS (Aquí estaba el error, ahora está protegido)
-    st.markdown("### 📊 Métricas")
-    st.markdown("""
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-        <span style="color: white; font-weight: bold; font-size: 1.1em;">Visitas:</span>
-        <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=&countColor=%2300C2FF&style=flat&labelStyle=none" style="height: 25px; border-radius: 3px;" />
-    </div>
-    """, unsafe_allow_html=True)
-
-# --- LOGIN ---
-if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
-if not st.session_state.usuario_activo:
-    st.markdown("## 🔐 Quantum Access")
-    try: st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=400)
-    except: pass
-    st.audio("https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3", loop=True)
-    c = st.text_input("Clave:", type="password")
-    if st.button("Entrar"):
-        if c.strip() in st.secrets["access_keys"]:
-            st.session_state.usuario_activo = st.secrets["access_keys"][c.strip()]
-            st.rerun()
-        else: st.error("Incorrecto")
-    st.stop()
-
-# --- APP ---
 try: genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 except: st.error("Falta API Key")
 
 if "mensajes" not in st.session_state: 
-    st.session_state.mensajes = [{"role": "assistant", "content": f"Hola {st.session_state.usuario_activo}. ¿En qué te ayudo?"}]
+    st.session_state.mensajes = [{"role": "assistant", "content": f"Hola {st.session_state.usuario_activo}. ¿En qué te ayudo hoy?"}]
 
-# --- BARRA LATERAL (CORREGIDA) ---
+# --- BARRA LATERAL ÚNICA Y ORDENADA ---
 with st.sidebar:
+    # Logo
     try: st.image("Logo_quantum.png", use_container_width=True)
-    except: st.header("QUANTUM")
-    st.success(f"Hola, {st.session_state.usuario_activo}")
+    except: st.header("QUANTUM HEALTH")
+    
+    st.success(f"Usuario: {st.session_state.usuario_activo}")
+    st.markdown("---")
 
-    # 1. CONFIGURACIÓN (Aquí volvió el Nivel) ✅
-    st.markdown("---")
-    st.markdown("### ⚙️ Configuración")
-    nivel = st.radio("Nivel de Respuesta:", ["Básica", "Media", "Experta"]) # RESTAURADO
+    # 1. Configuración de IA
+    st.markdown("### 🧠 Configuración")
+    nivel = st.radio("Nivel de Respuesta:", ["Básica", "Media", "Experta"])
     
-    if st.button("🗑️ Limpiar Chat"): st.session_state.mensajes = []; st.rerun()
-    if st.button("🔒 Salir"): st.session_state.usuario_activo = None; st.rerun()
-  # --- CONTADOR COMPACTO (En una sola línea) ---
+    # 2. Directorio Médico
     st.markdown("---")
-    
-    # Usamos HTML para poner el texto y la imagen lado a lado (Flexbox)
-   # --- CONTADOR DE VISITAS (Corregido) ---
-    st.markdown("---")
-    
-    # Fíjate que todo el HTML está dentro de las triples comillas """
-    st.markdown("""
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-        <span style="color: white; font-weight: bold; font-size: 1.1em;">📊 Visitas:</span>
-        <img src="https://api.visitorbadge.io/api/visitors?path=quantum-health-ai.com&label=&countColor=%2300C2FF&style=flat&labelStyle=none" style="height: 25px; border-radius: 3px;" />
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # 2. DIRECTORIO
-    st.markdown("---")
-    st.markdown("### 👨‍⚕️ Especialistas")
+    st.markdown("### 👨‍⚕️ Directorio")
     if TODOS_LOS_MEDICOS:
-        filtro = st.selectbox("📍 Ciudad:", ciudades)
+        filtro = st.selectbox("📍 Filtrar Ciudad:", ciudades)
         lista = TODOS_LOS_MEDICOS if filtro == "Todas las Ubicaciones" else [m for m in TODOS_LOS_MEDICOS if str(m.get('ciudad')).title() == filtro]
         
         if lista:
             if "idx" not in st.session_state: st.session_state.idx = 0
             m = lista[st.session_state.idx % len(lista)]
             
+            # Tarjeta del Médico
             st.markdown(f"""
-            <div class="medico-card">
+            <div style="background-color: #262730; padding: 15px; border-radius: 10px; border: 1px solid #444;">
                 <h4 style="margin:0; color:white;">{m.get('nombre','Dr.')}</h4>
-                <div style="color:#00C2FF;">{m.get('especialidad')}</div>
-                <div class="cedula-badge">Cédula: {m.get('cedula','--')}</div>
-                <small style="display:block; margin-top:5px; color:#bbb;">{m.get('descripcion')}</small>
-                <div style="margin-top:10px; border-top:1px dashed #333; padding-top:5px;">
-                    📞 {m.get('telefono','--')}<br>💬 {m.get('whatsapp','--')}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            c1, c2 = st.columns(2)
-            if c1.button("⬅️"): st.session_state.idx -= 1; st.rerun()
-            if c2.button("➡️"): st.session_state.idx += 1; st.rerun()
-        else: st.info("Sin resultados.")
-    else: st.warning("Directorio vacío.")
-
-    # 3. RECLUTAMIENTO
-    st.markdown("---")
-    st.markdown("### 💼 ¿Eres Médico?")
-    st.link_button("📝 Regístrate Aquí", URL_FORMULARIO) # AHORA SÍ ABRIRÁ EL FORM
-
-# --- CHAT ---
-st.markdown('<h1 class="titulo-quantum">Quantum AI Health</h1>', unsafe_allow_html=True)
-
-for msg in st.session_state.mensajes:
-    with st.chat_message(msg["role"]): st.markdown(msg["content"])
-
-if prompt := st.chat_input("Escribe tu consulta..."):
-    st.session_state.mensajes.append({"role": "user", "content": prompt})
-    st.chat_message("user").markdown(prompt)
-    try:
-        full = f"Eres Quantum (Nivel: {nivel}). {INSTRUCCION_EXTRA}. Usuario: {prompt}. FIN: ⚠️ Info educativa."
-        res = genai.GenerativeModel('gemini-2.5-flash').generate_content(full)
-        st.session_state.mensajes.append({"role": "assistant", "content": res.text})
-        st.rerun()
-    except Exception as e: st.error(f"Error: {e}")
+                <div style="color:#00C2FF; font-weight:bold;">{m.get('especial
