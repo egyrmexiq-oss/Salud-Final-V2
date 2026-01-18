@@ -12,6 +12,11 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Quantum AI Health", page_icon="Logo_quantum.png", layout="wide")
 if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
 
+# ==========================================
+# 🔐 1. LOGIN DE SEGURIDAD
+# ==========================================
+if "usuario_activo" not in st.session_state: st.session_state.usuario_activo = None
+
 if not st.session_state.usuario_activo:
     st.markdown("## 🔐 Quantum Access")
     
@@ -19,13 +24,20 @@ if not st.session_state.usuario_activo:
     try: st.components.v1.iframe("https://my.spline.design/claritystream-Vcf5uaN9MQgIR4VGFA5iU6Es/", height=400)
     except: pass
     
-    # 🎵 AQUÍ ESTÁ LA MÚSICA DE REGRESO 👇
+    # Música
     st.audio("https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3", loop=True, autoplay=True)
+    
+    # 👇 AQUÍ ESTÁ EL MENSAJE NUEVO
+    st.info("🔑 Para ingresar, usa la clave: **DEMO**")
     
     c = st.text_input("Clave de Acceso:", type="password")
     if st.button("Entrar"):
-        if c.strip() in st.secrets["access_keys"]:
-            st.session_state.usuario_activo = st.secrets["access_keys"][c.strip()]
+        # NOTA: Asegúrate de tener "DEMO" en tus 'secrets' o permite la entrada aquí
+        # Modifiqué esto para que acepte "DEMO" directamente o busque en secrets
+        if c.strip() == "DEMO" or (c.strip() in st.secrets["access_keys"]):
+            # Si entra con DEMO, le ponemos un nombre genérico
+            nombre = "Visitante" if c.strip() == "DEMO" else st.secrets["access_keys"][c.strip()]
+            st.session_state.usuario_activo = nombre
             st.rerun()
         else: st.error("Acceso Denegado")
     st.stop()
